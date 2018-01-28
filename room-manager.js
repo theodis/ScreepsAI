@@ -11,47 +11,87 @@ Room.prototype.clear = function() {
 };
 
 Room.prototype.run = function() {
-	init = function() {
+	const init = function() {
 		console.log("Initializing room", this.name);
 		//Initialize road queue
 		this.memory.roadQueue = [];
 
+		//Initialize room level
+		this.memory.roomLevel = 1;
+
 		//Plan out containers and initial roads
+
+		//Flag storage
 		let spawn = this.mainSpawn;
+		let storageSpot = this.storageSpot; storageSpot = new RoomPosition(storageSpot.x, storageSpot.y, this.name);
 		let spots = this.sourceContainerSpots;
 		let mineSpots = this.sourceMineSpots;
 
+		//Road from storage to spawn
+		this.buildRoad(storageSpot, spawn.pos);
+
+		//Place containers
+		//Road from storage to containers
+		//Road from containers to source mine spots
 		Object.keys(spots).forEach(key => {
 			let pos = spots[key];
 			let roomPos = new RoomPosition(pos.x,pos.y,this.name);
 			this.createConstructionSite(roomPos, "container");
+			this.buildRoad(roomPos, storageSpot);
+
+			//Road from container to mining spots
+			mineSpots[key].forEach(mineSpot => {
+				let mineSpotPos = new RoomPosition(mineSpot.x,mineSpot.y,this.name);
+				this.buildRoad(roomPos, mineSpotPos);
+			});
 		});
 
-		//Build roads to sources mine spots
-		Object.keys(mineSpots).forEach(key => {
-			mineSpots[key].forEach(spot => {
-				this.buildRoad(spawn.pos, new RoomPosition(spot.x,spot.y,this.name));
-			})
+		//Road from storage to controller
+		this.buildRoad(storageSpot, this.controller.pos);
+
+		//Roads around storage
+		this.buildRoadAround(storageSpot.x, storageSpot.y);
+
+		//Roads around containers
+		Object.keys(spots).forEach(key => {
+			let pos = spots[key];
+			this.buildRoadAround(pos.x, pos.y);
 		});
 
-		//Put roads around spawn
-		for(let j = spawn.pos.y - 1; j <= spawn.pos.y + 1 ; j++) {
-			for(let i = spawn.pos.x - 1; i <= spawn.pos.x + 1 ; i++) {
-				let roadPos = new RoomPosition(i,j,this.name);
-				this.queueRoad(roadPos);
-			}
-		}
+		//Roads around spawnCreep
+		this.buildRoadAround(spawn.pos.x, spawn.pos.y);
+
+		//Roads around controller
+		this.buildRoadAround(this.controller.pos.x, this.controller.pos.y);
 
 		this.memory.initialized = true;
 
 	}.bind(this);
 
-	if(!this.memory.initialized) {
-		init();
-	}
+	const levelUp = function(level) {
+		console.log("Room leveled up",room.name, level);
+	}.bind(this);
 
-	let constructionCount = this.find(FIND_CONSTRUCTION_SITES).length;
-	if(constructionCount < Room.MAX_CONSTRUCTION_SITES) this.buildQueuedRoads(Room.MAX_CONSTRUCTION_SITES - constructionCount);
+	const maintenance = function() {
+		let constructionCount = this.find(FIND_CONSTRUCTION_SITES).length;
+		if(constructionCount < Room.MAX_CONSTRUCTION_SITES) this.buildQueuedRoads(Room.MAX_CONSTRUCTION_SITES - constructionCount);
+	}.bind(this);
+
+	const planning = function() {
+	}.bind(this);
+
+	const loop = function() {
+	}.bind(this);
+
+	if(!this.memory.initialized){
+		if(global.lotsOfTime) init();
+		else return; //Bail out if not enough time to initialize
+	}
+	while(this.memory.roomLevel < this.controller.level && global.lotsOfTime) levelUp(++this.memory.roomLevel);
+	if(global.lotsOfTime) maintenance();
+	if(global.lotsOfTime) planning();
+	loop();
+
 }
 
 Room.prototype.buildQueuedRoads = function(count) {
@@ -74,9 +114,22 @@ Room.prototype.buildRoad = function(from, to) {
 	let roadQueue = this.memory.roadQueue;
 	let path = from.findPathTo(to);
 	for(let pos of path)
-		if(this.lookForAt(LOOK_FLAGS,pos.x,pos.y).length === 0)
-			roadQueue.push({x:pos.x, y:pos.y});
+		roadQueue.push({x:pos.x, y:pos.y});
 	this.memory.roadQueue = roadQueue;
+}
+
+Room.prototype.buildRoadAround = function(x,y,width=1,height=1,radius=1) {
+	if(radius < 1) return;
+	let minx = x - radius;
+	let miny = y - radius;
+	let maxx = x + width - 1 + radius;
+	let maxy = y + height - 1 + radius;
+	let roadQueue = this.memory.roadQueue;
+	for(let j = miny; j <= maxy; j++)
+		for(let i = minx; i <= maxx; i++)
+			if(i < x && i > x + width - 1 && j < y && j > y + height - 1)
+				roadQueue.push({x: i, y: j});
+	this.memory.readQueue = roadQueue;
 }
 
 Room.prototype.getFreeSpotNear = function(x,y,width=1,height=1,radius=0) {
