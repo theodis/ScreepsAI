@@ -1,26 +1,36 @@
 Room.WIDTH = 50;
 Room.HEIGHT = 50;
 Room.NO_BUILD_RADIUS = 2;
+Room.MAX_CONSTRUCTION_SITES = 80;
 
+Room.prototype.reset = function() {this.clear(); this.resetMemory();}
 Room.prototype.resetMemory = function() {Object.keys(this.memory).forEach(key => delete this.memory[key]); };
+Room.prototype.clear = function() {
+	this.find(FIND_FLAGS).forEach(flag => flag.remove());
+	this.find(FIND_CONSTRUCTION_SITES).forEach(site => site.remove());
+};
 
 Room.prototype.run = function() {
 	init = function() {
+		console.log("Initializing room", this.name);
+		//Initialize road queue
+		this.memory.roadQueue = [];
+
 		//Plan out containers and initial roads
 		let spawn = this.mainSpawn;
 		let spots = this.sourceContainerSpots;
 		let mineSpots = this.sourceMineSpots;
 
 		Object.keys(spots).forEach(key => {
-			let pos = spots[key].split(",");
-			let roomPos = new RoomPosition(pos[0],pos[1],this.name);
+			let pos = spots[key];
+			let roomPos = new RoomPosition(pos.x,pos.y,this.name);
 			this.createConstructionSite(roomPos, "container");
 		});
 
 		//Build roads to sources mine spots
 		Object.keys(mineSpots).forEach(key => {
 			mineSpots[key].forEach(spot => {
-				this.buildRoad(spawn.pos, new RoomPosition(spot[0],spot[1],this.name));
+				this.buildRoad(spawn.pos, new RoomPosition(spot.x,spot.y,this.name));
 			})
 		});
 
@@ -28,7 +38,7 @@ Room.prototype.run = function() {
 		for(let j = spawn.pos.y - 1; j <= spawn.pos.y + 1 ; j++) {
 			for(let i = spawn.pos.x - 1; i <= spawn.pos.x + 1 ; i++) {
 				let roadPos = new RoomPosition(i,j,this.name);
-				this.createConstructionSite(roadPos, "road");
+				this.queueRoad(roadPos);
 			}
 		}
 
@@ -39,15 +49,34 @@ Room.prototype.run = function() {
 	if(!this.memory.initialized) {
 		init();
 	}
+
+	let constructionCount = this.find(FIND_CONSTRUCTION_SITES).length;
+	if(constructionCount < Room.MAX_CONSTRUCTION_SITES) this.buildQueuedRoads(Room.MAX_CONSTRUCTION_SITES - constructionCount);
+}
+
+Room.prototype.buildQueuedRoads = function(count) {
+	let roadQueue = this.memory.roadQueue;
+	while(count && roadQueue.length) {
+		let pos = roadQueue.shift();
+		this.createConstructionSite(new RoomPosition(pos.x,pos.y,this.name), "road");
+		count--;
+	}
+	this.memory.roadQueue = roadQueue;
+}
+
+Room.prototype.queueRoad = function(pos) {
+	let roadQueue = this.memory.roadQueue;
+	roadQueue.push({x:pos.x, y:pos.y});
+	this.memory.readQueue = roadQueue;
 }
 
 Room.prototype.buildRoad = function(from, to) {
+	let roadQueue = this.memory.roadQueue;
 	let path = from.findPathTo(to);
-	for(let pos of path) {
-		if(this.lookForAt(LOOK_FLAGS,pos.x,pos.y).length === 0) {
-			this.createConstructionSite(pos.x,pos.y, "road");
-		}
-	}
+	for(let pos of path)
+		if(this.lookForAt(LOOK_FLAGS,pos.x,pos.y).length === 0)
+			roadQueue.push({x:pos.x, y:pos.y});
+	this.memory.roadQueue = roadQueue;
 }
 
 Room.prototype.getFreeSpotNear = function(x,y,width=1,height=1,radius=0) {
@@ -61,7 +90,7 @@ Room.prototype.getFreeSpotNear = function(x,y,width=1,height=1,radius=0) {
 		if(rx === rx2) {
 			//Initial run
 			if(this.isFreeSpot(rx,ry,width,height,radius)) {
-				ret = [rx, ry];
+				ret = {x:rx, y:ry};
 				break;
 			}
 		} else {
@@ -69,11 +98,11 @@ Room.prototype.getFreeSpotNear = function(x,y,width=1,height=1,radius=0) {
 			//Top & Bottom
 			for(let cx = rx; cx <= rx2; cx++) {
 				if(this.isFreeSpot(cx,ry,width,height,radius)) {
-					ret = [cx, ry];
+					ret = {x:cx, y:ry};
 					break;
 				}
 				if(this.isFreeSpot(cx,ry2,width,height,radius)) {
-					ret = [cx, ry2];
+					ret = {x:cx, y:ry2};
 					break;
 				}
 			}
@@ -82,11 +111,11 @@ Room.prototype.getFreeSpotNear = function(x,y,width=1,height=1,radius=0) {
 			//Left & Right
 			for(let cy = ry + 1; cy <= ry2 - 1; cy++) {
 				if(this.isFreeSpot(rx,cy,width,height,radius)) {
-					ret = [rx, cy];
+					ret = {x:rx, y:cy};
 					break;
 				}
 				if(this.isFreeSpot(rx2,cy,width,height,radius)) {
-					ret = [rx2, cy];
+					ret = {x:rx2, y:cy};
 					break;
 				}
 			}
@@ -144,9 +173,9 @@ Room.prototype.claimSourceMineSpot = function(minEnergy = 1, x = -1, y = -1) {
 
 	if(maxId) {
 		let ind = claims[maxId].pop();
-		this.memory.sourceClaims = JSON.stringify(claims);
+		this.memory.sourceClaims = claims;
 		let pos = this.sourceMineSpots[maxId][ind];
-		return { id: maxId, ind, x: pos[0], y: pos[1] }
+		return { id: maxId, ind, x: pos.x, y: pos.y }
 	} else {
 		return null;
 	}
@@ -158,7 +187,7 @@ Room.prototype.unclaimSourceMineSpot = function(id, ind) {
 
 	if(ind < spots[id].length && claims[id].indexOf(ind) == -1) {
 		claims[id].push(ind);
-		this.memory.sourceClaims = JSON.stringify(claims);
+		this.memory.sourceClaims = claims;
 	}
 }
 
@@ -185,8 +214,8 @@ Object.defineProperty(Room.prototype, 'storageSpot', {
 				x = Math.round(x / stuff.length);
 				y = Math.round(y / stuff.length);
 				pos = this.getFreeSpotNear(x,y,1,1,1);
-				this.createFlag(pos[0],pos[1],"Storage",COLOR_YELLOW);
-				this.memory.storageSpot = pos[0] + "," + pos[1];
+				this.createFlag(pos.x,pos.y,"Storage",COLOR_YELLOW);
+				this.memory.storageSpot = pos;
 			}
 		}
 		return this.memory.storageSpot;
@@ -199,7 +228,7 @@ Object.defineProperty(Room.prototype, 'sourceContainerSpots', {
 	get: function() {
 		if(!this.mine) return null;
 		if(!this.memory.sourceContainerSpots) {
-			let storageSpot = this.storageSpot.split(",");
+			let storageSpot = this.storageSpot;
 			let spots = {};
 			let sources = this.find(FIND_SOURCES);
 			sources.forEach(source => {
@@ -207,16 +236,16 @@ Object.defineProperty(Room.prototype, 'sourceContainerSpots', {
 				if(flag.length) {
 					spots[source.id] = flag[0].pos.x + "," + flag[0].pos.y;
 				} else {
-					let path = source.pos.findPathTo(new RoomPosition(storageSpot[0],storageSpot[1],this.name));
+					let path = source.pos.findPathTo(new RoomPosition(storageSpot.x,storageSpot.y,this.name));
 					if(path.length >= 2);
 					let pos = this.getFreeSpotNear(path[1].x,path[1].y,1,1,1);
-					this.createFlag(pos[0],pos[1],"SourceContainer:" + source.id,COLOR_YELLOW);
-					spots[source.id] = pos[0] + "," + pos[1];
+					this.createFlag(pos.x,pos.y,"SourceContainer:" + source.id,COLOR_YELLOW);
+					spots[source.id] = pos;
 				}
 			});
-			this.memory.sourceContainerSpots = JSON.stringify(spots);
+			this.memory.sourceContainerSpots = spots;
 		}
-		return JSON.parse(this.memory.sourceContainerSpots);
+		return this.memory.sourceContainerSpots;
 	},
 	enumerable: false,
 	configurable: true
@@ -235,14 +264,14 @@ Object.defineProperty(Room.prototype, 'sourceMineSpots', {
 				tiles.forEach(tile => {
 					if(tile.type == "terrain" && (tile.terrain == "swamp" || tile.terrain == "plain")) {
 						claims[source.id].push(spots[source.id].length);
-						spots[source.id].push([tile.x, tile.y]);
+						spots[source.id].push({x:tile.x, y:tile.y});
 					}
 				});
 			});
-			this.memory.sourceMineSpots = JSON.stringify(spots);
-			this.memory.sourceClaims = JSON.stringify(claims);
+			this.memory.sourceMineSpots = spots;
+			this.memory.sourceClaims = claims;
 		}
-		return JSON.parse(this.memory.sourceMineSpots);
+		return this.memory.sourceMineSpots;
 	},
 	enumerable: false,
 	configurable: true
