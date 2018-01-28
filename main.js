@@ -32,7 +32,7 @@ function spawnCreep(spawner, loadout, role) {
 const defaultWorkerLoadout = [WORK, CARRY, CARRY, MOVE]
 
 module.exports.loop = function () {
-	const roomManagers = Object.values(Game.rooms).map(room => roomManagerFactory.new(room));
+	const roomManagers = Object.keys(Game.rooms).map(key => roomManagerFactory.new(Game.rooms[key]));
 	const roomManager = roomManagers[0];
 
 	for(var name in Game.creeps) {
