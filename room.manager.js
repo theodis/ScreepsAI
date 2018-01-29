@@ -9,7 +9,7 @@ Room.prototype.resetMemory = function() {Object.keys(this.memory).forEach(key =>
 Room.prototype.clear = function() {
 	this.find(FIND_FLAGS).forEach(flag => flag.remove());
 	this.find(FIND_CONSTRUCTION_SITES).forEach(site => site.remove());
-	this.find(FIND_CREEPS).forEach(creep => creep.suicide());
+	this.find(FIND_CREEPS).forEach(creep => {creep.suicide()});
 	this.find(FIND_STRUCTURES, {filter: struct => struct.name !== "MainSpawn:W3N8"}).forEach(struct => struct.destroy());
 };
 
@@ -84,8 +84,8 @@ Room.prototype.run = function() {
 	}.bind(this);
 
 	const loop = function() {
-		const defaultWorkerLoadout = [WORK, CARRY, CARRY, MOVE]
-		if(Object.keys(Game.creeps).length < 5) {
+		const defaultWorkerLoadout = [WORK, WORK, CARRY, MOVE]
+		if(Object.keys(Game.creeps).length < 8) {
 			let name = "Bob" + Game.time;
 			this.mainSpawn.spawnCreep(defaultWorkerLoadout,name,{memory: {role: "worker"}});
 		}
@@ -223,8 +223,8 @@ Room.prototype.isFreeSpot = function(x,y,width=1,height=1,radius=0) {
 	return valid;
 }
 
-Room.prototype.peekClaimSourceMineSpot = function(minEnergy = 1, x = -1, y = -1) {
-	let max = 0;
+Room.prototype.peekClaimSourceMineSpot = function(minEnergy = 1, creep) {
+	let max = -999999;
 	let maxId = null;
 	let maxInd = null;
 	let spots = this.sourceMineSpots;
@@ -238,11 +238,11 @@ Room.prototype.peekClaimSourceMineSpot = function(minEnergy = 1, x = -1, y = -1)
 		let basescore = source.energy;
 		basescore *= claimedRatio;
 
-		for(let ind in spot) {
+		for(let ind of claims[id]) {
 			let score = basescore;
-			if(this.lookForAt(LOOK_CREEPS, spot[ind].x, spot[ind].y).length) continue;
-			if(x != -1) score -= (Math.abs(spot[ind].x - x) + Math.abs(spot[ind].y - y))* 100;
-
+			let creeps = this.lookForAt(LOOK_CREEPS, spot[ind].x, spot[ind].y);
+			if(creeps.length && creeps[0] !== creep) continue;
+			if(creep) score -= (Math.abs(spot[ind].x - creep.pos.x) + Math.abs(spot[ind].y - creep.pos.y))* 100;
 			if(source.energy >= minEnergy && score > max && claims[id].length) {
 				max = score;
 				maxId = id;
@@ -259,22 +259,24 @@ Room.prototype.peekClaimSourceMineSpot = function(minEnergy = 1, x = -1, y = -1)
 	}
 }
 
-Room.prototype.claimSourceMineSpot = function(minEnergy = 1, x = -1, y = -1) {
-	let entry = this.peekClaimSourceMineSpot(minEnergy, x, y);
+Room.prototype.claimSourceMineSpot = function(minEnergy = 1, creep) {
+	let entry = this.peekClaimSourceMineSpot(minEnergy, creep);
 	if(entry) {
 		let claims = this.sourceClaims;
-		claims[entry.id].splice(entry.ind,1);
+		let removeInd = claims[entry.id].indexOf(entry.ind);
+		claims[entry.id].splice(removeInd, 1);
 		this.memory.sourceClaims = claims;
 	}
 	return entry;
 }
 
-Room.prototype.unclaimSourceMineSpot = function(claim) {
+Room.prototype.unclaimSourceMineSpot = function(ret) {
 	let spots = this.sourceMineSpots;
 	let claims = this.sourceClaims;
-
-	if(claim.ind < spots[claim.id].length && claims[claim.id].indexOf(claim.ind) == -1) {
-		claims[claim.id].push(claim.ind);
+	let spot = spots[ret.id];
+	let claim = claims[ret.id];
+	if(ret.ind < spot.length && claim.indexOf(ret.ind) === -1) {
+		claim.push(ret.ind);
 		this.memory.sourceClaims = claims;
 	}
 }
@@ -399,7 +401,7 @@ Object.defineProperty(Room.prototype, 'repairTargetCount', {
 
 Object.defineProperty(Room.prototype, 'repairTargets', {
 	get: function() {
-		if(!this.memory.repairTargets) {
+		if(!this.memory.repairTargets || Game.time > this.memory.repairTargetsTime + 100) {
 			let targets = [];
 			this.find(FIND_MY_STRUCTURES, {filter: struct => struct.hits < struct.hitsMax / 2 }).forEach(struct => {
 				targets.push({id: struct.id, x: struct.pos.x, y: struct.pos.y});

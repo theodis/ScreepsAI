@@ -17,3 +17,12 @@ Creep.prototype.run = function() {
 	};
 }
 
+Creep.prototype.revokeClaim = function() {
+	let claim = this.memory.claim;
+	if(claim) {
+		this.room.unclaimSourceMineSpot(claim);
+		this.memory.claim = null;
+		delete this.memory.claim;
+	}
+}
+

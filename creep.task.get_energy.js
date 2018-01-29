@@ -20,12 +20,12 @@ module.exports = {
 			task.subtask = [
 				{name: "mini_move", action: "withdraw", target_id: this.room.bestConainter.id, action_params: [RESOURCE_ENERGY]},
 			];
-		} else if(this.room.peekClaimSourceMineSpot(this.carryCapacity)){
+		} else if(this.room.peekClaimSourceMineSpot(this.carryCapacity, this)){
 
 			//Grab a claim if don't already have one
-			let mineSpot = null;
-			if(!this.memory.claim) this.memory.claim = this.room.claimSourceMineSpot(this.carryCapacity, this.pos.x, this.pos.y);
-			mineSpot = this.memory.claim;
+
+			if(!this.memory.claim) this.memory.claim = this.room.claimSourceMineSpot(this.carryCapacity, this);
+			let mineSpot = this.memory.claim;
 			if(mineSpot === null) return false;
 
 			task.subtask = [

@@ -12,7 +12,7 @@ module.exports = {
 		//If the action can be done then it's close enough
 		if(target && task.action){
 			let result = this[task.action](target, ...action_params);
-			if(result === OK || result === ERR_FULL) return "done";
+			if(result === OK || result === ERR_FULL || result == ERR_INVALID_TARGET) return "done";
 		}
 		//If at the destination we're done
 		if(
@@ -24,8 +24,8 @@ module.exports = {
 		let result = null
 		if(target) result = this.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
 		else result = this.moveTo(task.x, task.y, {visualizePathStyle: {stroke: '#ffffff'}});
-
-		if(result === ERR_NO_PATH || result === ERR_NO_BODYPART) return "fail";
+		task.last_result = result;
+		if(result === ERR_NO_PATH || result === ERR_NO_BODYPART || result == ERR_INVALID_TARGET) return "fail";
 		return "continue;"
 	},
 };

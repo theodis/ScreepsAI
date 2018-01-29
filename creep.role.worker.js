@@ -19,11 +19,7 @@ module.exports = {
 
 		// If I already have a task then no need to continue;
 		if(this.ticksToLive < 5) { // Return claim and stop
-			if(this.memory.claim) {
-				let claim = this.memory.claim;
-				this.room.unclaimSourceMineSpot(claim);
-				delete(this.memory.claim);
-			}
+			this.revokeClaim();
 			return;
 		}
 		const mainSpawn = this.room.mainSpawn;
@@ -38,7 +34,7 @@ module.exports = {
 		} else if(this.room.buildTargets.length > 0) {
 			this.assignTask({name: "build", target_id: this.room.nearestBuildTarget(this.pos.x, this.pos.y).id });
 		} else {
-			//Upgrade controller
+			this.assignTask({name: "upgrade", target_id: this.room.controller.id});
 		}
 
 
