@@ -5,9 +5,12 @@ Room.MAX_CONSTRUCTION_SITES = 80;
 
 Room.prototype.reset = function() {this.clear(); this.resetMemory();}
 Room.prototype.resetMemory = function() {Object.keys(this.memory).forEach(key => delete this.memory[key]); };
+
 Room.prototype.clear = function() {
 	this.find(FIND_FLAGS).forEach(flag => flag.remove());
 	this.find(FIND_CONSTRUCTION_SITES).forEach(site => site.remove());
+	this.find(FIND_CREEPS).forEach(creep => creep.suicide());
+	this.find(FIND_STRUCTURES, {filter: struct => struct.name !== "MainSpawn:W3N8"}).forEach(struct => struct.destroy());
 };
 
 Room.prototype.run = function() {
@@ -81,6 +84,14 @@ Room.prototype.run = function() {
 	}.bind(this);
 
 	const loop = function() {
+		const defaultWorkerLoadout = [WORK, CARRY, CARRY, MOVE]
+		if(Object.keys(Game.creeps).length < 5) {
+			let name = "Bob" + Game.time;
+			this.mainSpawn.spawnCreep(defaultWorkerLoadout,name,{memory: {role: "worker"}});
+		}
+
+		//Build workers until containers are built
+		//Then build miners and cargo
 	}.bind(this);
 
 	if(!this.memory.initialized){
@@ -127,8 +138,9 @@ Room.prototype.buildRoadAround = function(x,y,width=1,height=1,radius=1) {
 	let roadQueue = this.memory.roadQueue;
 	for(let j = miny; j <= maxy; j++)
 		for(let i = minx; i <= maxx; i++)
-			if(i < x && i > x + width - 1 && j < y && j > y + height - 1)
+			if(!(i >= x && i <= x + width - 1 && j >= y && j <= y + height - 1))
 				roadQueue.push({x: i, y: j});
+
 	this.memory.readQueue = roadQueue;
 }
 
@@ -203,43 +215,66 @@ Room.prototype.isFreeSpot = function(x,y,width=1,height=1,radius=0) {
 	for(let tile of tiles) {
 		if(tile.type === "terrain" && tile.terrain !== "swamp" && tile.terrain !== "plain") { valid = false; break;}
 		if(tile.type === "flag") { valid = false; break;}
-		if(tile.type === "constructionSite" && inArea(tile.pos.x,tile.pos.y)) { valid = false; break;}
-		if(tile.type === "constructionSite" && inRadius(tile.pos.x,tile.pos.y) && tile.constructionType.structureType !== "road") { valid = false; break;}
-		if(tile.type === "structure" && inArea(tile.pos.x,tile.pos.y)) { valid = false; break;}
-		if(tile.type === "structure" && inRadius(tile.pos.x,tile.pos.y) && tile.structure.structureType !== "road") { valid = false; break;}
+		if(tile.type === "constructionSite" && inArea(tile.x,tile.y)) { valid = false; break;}
+		if(tile.type === "constructionSite" && inRadius(tile.x,tile.y) && tile.constructionType.structureType !== "road") { valid = false; break;}
+		if(tile.type === "structure" && inArea(tile.x,tile.y)) { valid = false; break;}
+		if(tile.type === "structure" && inRadius(tile.x,tile.y) && tile.structure.structureType !== "road") { valid = false; break;}
 	}
 	return valid;
 }
 
-Room.prototype.claimSourceMineSpot = function(minEnergy = 1, x = -1, y = -1) {
+Room.prototype.peekClaimSourceMineSpot = function(minEnergy = 1, x = -1, y = -1) {
 	let max = 0;
 	let maxId = null;
+	let maxInd = null;
+	let spots = this.sourceMineSpots;
 	let claims = this.sourceClaims;
 
 	Object.keys(claims).forEach(id => {
+		let spot = spots[id];
 		let source = Game.getObjectById(id);
-		if(source.energy >= minEnergy && source.energy > max && claims[id].length) {
-			max = source.energy;
-			maxId = source.id;
+		let claimedRatio = claims[id].length / spots[id].length
+
+		let basescore = source.energy;
+		basescore *= claimedRatio;
+
+		for(let ind in spot) {
+			let score = basescore;
+			if(this.lookForAt(LOOK_CREEPS, spot[ind].x, spot[ind].y).length) continue;
+			if(x != -1) score -= (Math.abs(spot[ind].x - x) + Math.abs(spot[ind].y - y))* 100;
+
+			if(source.energy >= minEnergy && score > max && claims[id].length) {
+				max = score;
+				maxId = id;
+				maxInd = ind;
+			}
 		}
 	});
 
 	if(maxId) {
-		let ind = claims[maxId].pop();
-		this.memory.sourceClaims = claims;
-		let pos = this.sourceMineSpots[maxId][ind];
-		return { id: maxId, ind, x: pos.x, y: pos.y }
+		let pos = spots[maxId][maxInd];
+		return { id: maxId, ind: maxInd, x: pos.x, y: pos.y }
 	} else {
 		return null;
 	}
 }
 
-Room.prototype.unclaimSourceMineSpot = function(id, ind) {
+Room.prototype.claimSourceMineSpot = function(minEnergy = 1, x = -1, y = -1) {
+	let entry = this.peekClaimSourceMineSpot(minEnergy, x, y);
+	if(entry) {
+		let claims = this.sourceClaims;
+		claims[entry.id].splice(entry.ind,1);
+		this.memory.sourceClaims = claims;
+	}
+	return entry;
+}
+
+Room.prototype.unclaimSourceMineSpot = function(claim) {
 	let spots = this.sourceMineSpots;
 	let claims = this.sourceClaims;
 
-	if(ind < spots[id].length && claims[id].indexOf(ind) == -1) {
-		claims[id].push(ind);
+	if(claim.ind < spots[claim.id].length && claims[claim.id].indexOf(claim.ind) == -1) {
+		claims[claim.id].push(claim.ind);
 		this.memory.sourceClaims = claims;
 	}
 }
@@ -335,14 +370,14 @@ Object.defineProperty(Room.prototype, 'sourceClaims', {
 		if(!this.memory.sourceMineSpots || !this.memory.sourceClaims) {
 			this.sourceMineSpots;
 		}
-		return JSON.parse(this.memory.sourceClaims);
+		return this.memory.sourceClaims;
 	},
 	enumerable: false,
 	configurable: true
 });
 
 Object.defineProperty(Room.prototype, 'mainSpawn', {
-	get: function() { return this.find(FIND_MY_SPAWNS, {filter: spawn => spawn.name === "MainSpawn"})[0] },
+	get: function() { return this.find(FIND_MY_SPAWNS, {filter: spawn => spawn.name === `MainSpawn:${this.name}`})[0] },
 	enumerable: false,
 	configurable: true
 });
@@ -353,3 +388,73 @@ Object.defineProperty(Room.prototype, 'mine', {
 	configurable: true
 });
 
+Object.defineProperty(Room.prototype, 'repairTargetCount', {
+	get: function() {
+		if(this.memory.repairTargets) return this.memory.repairTargets.length;
+		return 0;
+	},
+	enumerable: false,
+	configurable: true
+});
+
+Object.defineProperty(Room.prototype, 'repairTargets', {
+	get: function() {
+		if(!this.memory.repairTargets) {
+			let targets = [];
+			this.find(FIND_MY_STRUCTURES, {filter: struct => struct.hits < struct.hitsMax / 2 }).forEach(struct => {
+				targets.push({id: struct.id, x: struct.pos.x, y: struct.pos.y});
+			});
+			this.memory.repairTargets = targets;
+			this.memory.repairTargetsTime = Game.time;
+		}
+		return 0;
+	},
+	enumerable: false,
+	configurable: true
+});
+
+Room.prototype.getRepairTarget = function() {
+	if(this.repairTargetCount === 0) return null;
+	let repairTargets = this.repairTargets;
+	let ret = Game.getObjectById(repairTarget.pop().id);
+	this.memory.repairTargets = repairTargets;
+	return ret;
+}
+
+Object.defineProperty(Room.prototype, 'buildTargets', {
+	get: function() { return this.find(FIND_CONSTRUCTION_SITES); },
+	enumerable: false,
+	configurable: true
+});
+
+Room.prototype.nearestBuildTarget = function(x,y) {
+	let targets = this.buildTargets;
+	let min = 9999;
+	let best = null;
+
+	targets.forEach(target => {
+		let dist = Math.abs(x - target.pos.x) + Math.abs(y - target.pos.y);
+		if(dist < min) {
+			min = dist;
+			best = target;
+		}
+	});
+
+	return best;
+}
+
+Object.defineProperty(Room.prototype, 'bestContainer', {
+	get: function() {
+		let max = 0;
+		let best = null;
+		this.find(FIND_MY_STRUCTURES, {filter: struct => struct.structureType === "container"}).forEach(container => {
+			if(container.energy > max) {
+				max = container.energy;
+				best = container;
+			}
+		});
+		return best;
+	},
+	enumerable: false,
+	configurable: true
+});

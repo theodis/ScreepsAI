@@ -1,31 +1,19 @@
-Creep.role = {
-	carry: require('creep.role.carry'),
-	miner: require('creep.role.miner'),
-	worker: require('creep.role.worker'),
-}
-
-Creep.worker = require('creep.role.worker');
+require('creep.role');
+require('creep.task');
 
 Creep.prototype.run = function() {
-	if(this.role in Creep.role)
-		Creep.role[this.role].run.bind(this)();
-}
-
-Object.defineProperty(Creep.prototype, 'role', {
-	get: function() { return this.memory.role; },
-	set: function(newRole) {
-		let oldRole = this.memory.role;
-		if(newRole in Creep.role) {
-			if(!(oldRole in Creep.role) || Creep.role[oldRole].stop.bind(this)()) {
-				if(Creep.role[newRole].start.bind(this)()) {
-					this.memory.role = newRole;
-				} else {
-					this.memory.role = "";
-				}
-			}
+	if(this.role in Creep.role) Creep.role[this.role].run.bind(this)();
+	if(this.task && this.task.name in Creep.task) {
+		let task_data = this.memory.task;
+		let result = Creep.task[this.task.name].run.bind(this)(task_data);
+		switch(result) {
+			case "continue":
+				this.memory.task = task_data;
+				break;
+			case "done":
+			case "fail":
+				this.memory.task = "";
 		}
-	},
-	enumerable: false,
-	configurable: true
-});
+	};
+}
 
