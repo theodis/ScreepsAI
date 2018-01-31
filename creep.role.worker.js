@@ -30,7 +30,7 @@ module.exports = {
 		} else if(!this.room.cargoCreeps && mainSpawn.energy < mainSpawn.energyCapacity) {
 			this.assignTask({name: "mini_move", action: "transfer", target_id: mainSpawn.id, action_params: [RESOURCE_ENERGY]});
 		} else if(this.room.repairTargetCount > 0) {
-			this.assignTask({name: "repair", target_id: this.room.getRepairTarget().id});
+			this.assignTask({name: "repair", target_id: this.room.getRepairTarget(this.pos).id});
 		} else if(this.room.buildTargets.length > 0) {
 			this.assignTask({name: "build", target_id: this.room.nearestBuildTarget(this.pos.x, this.pos.y).id });
 		} else {

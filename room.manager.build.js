@@ -140,7 +140,7 @@ Room.prototype.nearestBuildTarget = function(x,y) {
 	let best = null;
 
 	targets.forEach(target => {
-		let dist = Math.abs(x - target.pos.x) + Math.abs(y - target.pos.y);
+		let dist = Math.max(Math.abs(x - target.pos.x), Math.abs(y - target.pos.y));
 		if(dist < min) {
 			min = dist;
 			best = target;

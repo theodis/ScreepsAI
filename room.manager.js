@@ -156,11 +156,23 @@ Object.defineProperty(Room.prototype, 'repairTargets', {
 	configurable: true
 });
 
-Room.prototype.getRepairTarget = function() {
+Room.prototype.getRepairTarget = function(pos) {
 	let repairTargets = this.repairTargets;
 	if(!repairTargets.length) return null;
+	let ret = null;
+	if(pos) {
+		let min = 99999;
 
-	let ret = repairTargets.pop();
+		repairTargets.forEach(target => {
+			let dist = Math.max(Math.abs(pos.x - target.pos.x), Math.abs(pos.y - target.pos.y));
+			if(dist < min) {
+				min = dist;
+				ret = target;
+			}
+		})
+	} else {
+		ret = repairTargets[0];
+	}
 	return ret;
 }
 
