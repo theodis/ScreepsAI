@@ -1,23 +1,14 @@
+require('room.manager.build');
+require('room.manager.debug');
+
 Room.WIDTH = 50;
 Room.HEIGHT = 50;
-Room.NO_BUILD_RADIUS = 2;
-Room.MAX_CONSTRUCTION_SITES = 80;
-
-Room.prototype.reset = function() {this.clear(); this.resetMemory();}
-Room.prototype.resetMemory = function() {Object.keys(this.memory).forEach(key => delete this.memory[key]); };
-
-Room.prototype.clear = function() {
-	this.find(FIND_FLAGS).forEach(flag => flag.remove());
-	this.find(FIND_CONSTRUCTION_SITES).forEach(site => site.remove());
-	this.find(FIND_CREEPS).forEach(creep => {creep.suicide()});
-	this.find(FIND_STRUCTURES, {filter: struct => struct.name !== "MainSpawn:W3N8"}).forEach(struct => struct.destroy());
-};
 
 Room.prototype.run = function() {
 	const init = function() {
 		console.log("Initializing room", this.name);
-		//Initialize road queue
-		this.memory.roadQueue = [];
+		//Initialize build queue
+		this.memory.buildQueue = [];
 
 		//Initialize room level
 		this.memory.roomLevel = 1;
@@ -72,12 +63,12 @@ Room.prototype.run = function() {
 	}.bind(this);
 
 	const levelUp = function(level) {
-		console.log("Room leveled up",room.name, level);
+		console.log("Room leveled up",this.name, level);
 	}.bind(this);
 
 	const maintenance = function() {
 		let constructionCount = this.find(FIND_CONSTRUCTION_SITES).length;
-		if(constructionCount < Room.MAX_CONSTRUCTION_SITES) this.buildQueuedRoads(Room.MAX_CONSTRUCTION_SITES - constructionCount);
+		//if(constructionCount < Room.MAX_CONSTRUCTION_SITES) this.buildQueuedRoads(Room.MAX_CONSTRUCTION_SITES - constructionCount);
 	}.bind(this);
 
 	const planning = function() {
@@ -103,124 +94,6 @@ Room.prototype.run = function() {
 	if(global.lotsOfTime) planning();
 	loop();
 
-}
-
-Room.prototype.buildQueuedRoads = function(count) {
-	let roadQueue = this.memory.roadQueue;
-	while(count && roadQueue.length) {
-		let pos = roadQueue.shift();
-		this.createConstructionSite(new RoomPosition(pos.x,pos.y,this.name), "road");
-		count--;
-	}
-	this.memory.roadQueue = roadQueue;
-}
-
-Room.prototype.queueRoad = function(pos) {
-	let roadQueue = this.memory.roadQueue;
-	roadQueue.push({x:pos.x, y:pos.y});
-	this.memory.readQueue = roadQueue;
-}
-
-Room.prototype.buildRoad = function(from, to) {
-	let roadQueue = this.memory.roadQueue;
-	let path = from.findPathTo(to);
-	for(let pos of path)
-		roadQueue.push({x:pos.x, y:pos.y});
-	this.memory.roadQueue = roadQueue;
-}
-
-Room.prototype.buildRoadAround = function(x,y,width=1,height=1,radius=1) {
-	if(radius < 1) return;
-	let minx = x - radius;
-	let miny = y - radius;
-	let maxx = x + width - 1 + radius;
-	let maxy = y + height - 1 + radius;
-	let roadQueue = this.memory.roadQueue;
-	for(let j = miny; j <= maxy; j++)
-		for(let i = minx; i <= maxx; i++)
-			if(!(i >= x && i <= x + width - 1 && j >= y && j <= y + height - 1))
-				roadQueue.push({x: i, y: j});
-
-	this.memory.readQueue = roadQueue;
-}
-
-Room.prototype.getFreeSpotNear = function(x,y,width=1,height=1,radius=0) {
-	let rx = x;
-	let ry = y;
-	let rx2 = x;
-	let ry2 = y;
-
-	let ret = null;
-	while(!ret) {
-		if(rx === rx2) {
-			//Initial run
-			if(this.isFreeSpot(rx,ry,width,height,radius)) {
-				ret = {x:rx, y:ry};
-				break;
-			}
-		} else {
-			//Ring loops
-			//Top & Bottom
-			for(let cx = rx; cx <= rx2; cx++) {
-				if(this.isFreeSpot(cx,ry,width,height,radius)) {
-					ret = {x:cx, y:ry};
-					break;
-				}
-				if(this.isFreeSpot(cx,ry2,width,height,radius)) {
-					ret = {x:cx, y:ry2};
-					break;
-				}
-			}
-			if(ret) break;
-
-			//Left & Right
-			for(let cy = ry + 1; cy <= ry2 - 1; cy++) {
-				if(this.isFreeSpot(rx,cy,width,height,radius)) {
-					ret = {x:rx, y:cy};
-					break;
-				}
-				if(this.isFreeSpot(rx2,cy,width,height,radius)) {
-					ret = {x:rx2, y:cy};
-					break;
-				}
-			}
-		}
-
-		//Expand the ring if possible
-		let caps = 0;
-		if(rx - radius > Room.NO_BUILD_RADIUS) rx--; else caps++;
-		if(ry - radius > Room.NO_BUILD_RADIUS) ry--; else caps++;
-		if(rx2 + width - 1 + radius < Room.WIDTH - Room.NO_BUILD_RADIUS - 1) rx2++; else caps++;
-		if(ry2 + height - 1 + radius < Room.HEIGHT - Room.NO_BUILD_RADIUS - 1) ry2++; else caps++;
-
-		if(caps === 4) break; //Break if not possible to expand ring in any direction
-	}
-
-	return ret;
-};
-
-Room.prototype.isFreeSpot = function(x,y,width=1,height=1,radius=0) {
-	function inRadius(px, py) { return px < x || py < y || px > x + width - 1 || py > y + height - 1; }
-	function inArea(px, py) { return !inRadius(px,py); }
-
-	//Skip if too close to wall
-	if(	x - radius < Room.NO_BUILD_RADIUS ||
-		y - radius < Room.NO_BUILD_RADIUS ||
-		x + width - 1 + radius >= Room.WIDTH - Room.NO_BUILD_RADIUS ||
-		y + height - 1 + radius >= Room.HEIGHT - Room.NO_BUILD_RADIUS)
-		return false;
-
-	let tiles = this.lookAtArea(y - radius, x - radius, y + height - 1 + radius, x + width - 1 + radius, true);
-	let valid = true;
-	for(let tile of tiles) {
-		if(tile.type === "terrain" && tile.terrain !== "swamp" && tile.terrain !== "plain") { valid = false; break;}
-		if(tile.type === "flag") { valid = false; break;}
-		if(tile.type === "constructionSite" && inArea(tile.x,tile.y)) { valid = false; break;}
-		if(tile.type === "constructionSite" && inRadius(tile.x,tile.y) && tile.constructionType.structureType !== "road") { valid = false; break;}
-		if(tile.type === "structure" && inArea(tile.x,tile.y)) { valid = false; break;}
-		if(tile.type === "structure" && inRadius(tile.x,tile.y) && tile.structure.structureType !== "road") { valid = false; break;}
-	}
-	return valid;
 }
 
 Room.prototype.peekClaimSourceMineSpot = function(minEnergy = 1, creep) {
@@ -253,7 +126,7 @@ Room.prototype.peekClaimSourceMineSpot = function(minEnergy = 1, creep) {
 
 	if(maxId) {
 		let pos = spots[maxId][maxInd];
-		return { id: maxId, ind: maxInd, x: pos.x, y: pos.y }
+		return { id: maxId, ind: maxInd, x: pos.x, y: pos.y, room: this.name }
 	} else {
 		return null;
 	}
@@ -271,6 +144,10 @@ Room.prototype.claimSourceMineSpot = function(minEnergy = 1, creep) {
 }
 
 Room.prototype.unclaimSourceMineSpot = function(ret) {
+	if(ret.room !== this.name) {
+		Game.rooms[ret.room].unclaimSourceMineSpot(ret);
+		return;
+	}
 	let spots = this.sourceMineSpots;
 	let claims = this.sourceClaims;
 	let spot = spots[ret.id];

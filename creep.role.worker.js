@@ -18,10 +18,7 @@ module.exports = {
 		// switch to a miner
 
 		// If I already have a task then no need to continue;
-		if(this.ticksToLive < 5) { // Return claim and stop
-			this.revokeClaim();
-			return;
-		}
+
 		const mainSpawn = this.room.mainSpawn;
 		if(this.task) {
 			//Already busy
