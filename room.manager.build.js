@@ -118,7 +118,6 @@ Room.prototype.isFreeSpot = function(x,y,width=1,height=1,radius=0) {
 	return valid;
 }
 
-
 Object.defineProperty(Room.prototype, 'buildTargets', {
 	get: function() { return this.find(FIND_CONSTRUCTION_SITES); },
 	enumerable: false,
@@ -140,3 +139,4 @@ Room.prototype.nearestBuildTarget = function(x,y) {
 
 	return best;
 }
+

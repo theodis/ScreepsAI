@@ -6,6 +6,8 @@ Room.WIDTH = 50;
 Room.HEIGHT = 50;
 
 Room.prototype.run = function() {
+	const spawn = this.mainSpawn;
+
 	const init = function() {
 		console.log("Initializing room", this.name);
 		//Initialize build queue
@@ -17,7 +19,6 @@ Room.prototype.run = function() {
 		//Plan out containers and initial roads
 
 		//Flag storage
-		let spawn = this.mainSpawn;
 		let storageSpot = this.storageSpot; storageSpot = new RoomPosition(storageSpot.x, storageSpot.y, this.name);
 		let spots = this.sourceContainerSpots;
 		let mineSpots = this.sourceMineSpots;
@@ -77,9 +78,9 @@ Room.prototype.run = function() {
 
 	const loop = function() {
 		const defaultWorkerLoadout = [WORK, WORK, CARRY, MOVE]
-		if(Object.keys(Game.creeps).length < 8) {
+		if(!spawn.spawning && Object.keys(Game.creeps).length < 8) {
 			let name = "Bob" + Game.time;
-			this.mainSpawn.spawnCreep(defaultWorkerLoadout,name,{memory: {role: "worker"}});
+			spawn.spawnCreep(defaultWorkerLoadout,name,{memory: {role: "worker"}});
 		}
 
 		//Build workers until containers are built
@@ -110,7 +111,7 @@ Object.defineProperty(Room.prototype, 'storageSpot', {
 			//Check if storage flag already planted
 			let flag = this.find(FIND_FLAGS, {filter: flag => flag.name === "Storage"});
 			if(flag.length) {
-				this.memory.storageSpot = flag[0].pos.x + "," + flag[0].pos.y
+				this.memory.storageSpot = {x:flag[0].pos.x, y:flag[0].pos.y};
 			} else {
 				let stuff = this.findTypes([FIND_MY_SPAWNS, FIND_SOURCES])
 				stuff.push(this.controller);
@@ -140,7 +141,7 @@ Object.defineProperty(Room.prototype, 'sourceContainerSpots', {
 			sources.forEach(source => {
 				let flag = this.find(FIND_FLAGS, {filter: flag => flag === "SourceContainer:" + source.id});
 				if(flag.length) {
-					spots[source.id] = flag[0].pos.x + "," + flag[0].pos.y;
+					spots[source.id] = {x:flag[0].pos.x, y:flag[0].pos.y};
 				} else {
 					let path = source.pos.findPathTo(new RoomPosition(storageSpot.x,storageSpot.y,this.name));
 					if(path.length >= 2);
@@ -158,7 +159,11 @@ Object.defineProperty(Room.prototype, 'sourceContainerSpots', {
 });
 
 Object.defineProperty(Room.prototype, 'mainSpawn', {
-	get: function() { return this.find(FIND_MY_SPAWNS, {filter: spawn => spawn.name === `MainSpawn:${this.name}`})[0] },
+	get: function() {
+		if(!this.memory.mainSpawnID)
+			this.memory.mainSpawnID = this.find(FIND_MY_SPAWNS, {filter: spawn => spawn.name === `MainSpawn:${this.name}`})[0].id;
+		return Game.getObjectById(this.memory.mainSpawnID);
+	},
 	enumerable: false,
 	configurable: true
 });
