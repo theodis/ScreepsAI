@@ -40,7 +40,6 @@ Room.prototype.claimSourceMineSpot = function(minEnergy = 1, creep) {
 		let claims = this.sourceClaims;
 		let removeInd = claims[entry.id].indexOf(entry.ind);
 		claims[entry.id].splice(removeInd, 1);
-		this.memory.sourceClaims = claims;
 	}
 	return entry;
 }
@@ -56,7 +55,6 @@ Room.prototype.unclaimSourceMineSpot = function(ret) {
 	let claim = claims[ret.id];
 	if(ret.ind < spot.length && claim.indexOf(ret.ind) === -1) {
 		claim.push(ret.ind);
-		this.memory.sourceClaims = claims;
 	}
 }
 

@@ -198,7 +198,6 @@ Room.prototype.getRepairTarget = function() {
 	if(this.repairTargetCount === 0) return null;
 	let repairTargets = this.repairTargets;
 	let ret = Game.getObjectById(repairTarget.pop().id);
-	this.memory.repairTargets = repairTargets;
 	return ret;
 }
 
