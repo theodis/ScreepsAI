@@ -158,15 +158,16 @@ Object.defineProperty(Room.prototype, 'repairTargets', {
 			this.memory.repairTargets = targets;
 			this.memory.repairTargetsTime = Game.time;
 		}
-		return 0;
+		return this.memory.repairTargets;
 	},
 	enumerable: false,
 	configurable: true
 });
 
 Room.prototype.getRepairTarget = function() {
-	if(this.repairTargetCount === 0) return null;
 	let repairTargets = this.repairTargets;
+	if(!repairTargets.length) return null;
+
 	let ret = Game.getObjectById(repairTarget.pop().id);
 	return ret;
 }
