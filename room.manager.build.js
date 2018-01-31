@@ -13,8 +13,6 @@ Room.prototype.buildQueued = function(count) {
 }
 
 Room.prototype.queueConstruction = function(pos, type) {
-	if(!this.memory.buildQueue) this.memory.buildQueue = {};
-	if(!this.memory.buildQueueTypeCount) this.memory.buildQueueTypeCount = {};
 	let buildQueue = this.memory.buildQueue;
 	let buildQueueTypeCount = this.memory.buildQueueTypeCount;
 	buildQueue.push({x:pos.x, y:pos.y, type});
@@ -119,7 +117,7 @@ Room.prototype.isFreeSpot = function(x,y,width=1,height=1,radius=0) {
 }
 
 Object.defineProperty(Room.prototype, 'buildTargets', {
-	get: function() { return this.find(FIND_CONSTRUCTION_SITES); },
+	get: function() { return this.find(FIND_MY_CONSTRUCTION_SITES); },
 	enumerable: false,
 	configurable: true
 });
@@ -140,3 +138,47 @@ Room.prototype.nearestBuildTarget = function(x,y) {
 	return best;
 }
 
+Object.defineProperty(Room.prototype, 'buildingCount', {
+	get: function() {
+		let ret = {}
+		this.find(FIND_MY_CONSTRUCTION_SITES).forEach(site => {
+			if(!ret[site.structureType]) ret[site.structureType] = 0;
+			ret[site.structureType]++;
+		});
+		this.find(FIND_MY_STRUCTURES).forEach(site => {
+			if(!ret[site.structureType]) ret[site.structureType] = 0;
+			ret[site.structureType]++;
+		});
+		return ret;
+	},
+	enumerable: false,
+	configurable: true
+});
+
+Object.defineProperty(Room.prototype, 'buildingsLeft', {
+	get: function() {
+		let ret = {}
+		let current = this.buildingCount;
+		let queued = this.memory.buildQueueTypeCount;
+		let level = this.controller.level;
+
+		for(let type in CONTROLLER_STRUCTURES)
+			ret[type] = CONTROLLER_STRUCTURES[type][level] - (current[type] || 0) - (queued[type] || 0)
+		return ret;
+	},
+	enumerable: false,
+	configurable: true
+})
+
+//Build order
+//Road from source mine spots to containers
+//Road from containers to storageSpot
+//Road from storage to main spawn
+//Road around containers
+//Road around stoarge
+//Road around spawn
+//Build containers
+//Build storage if high enough level
+//Build road from storage to controller
+//Build as many turrets as possible
+//Build as many extensions as possible

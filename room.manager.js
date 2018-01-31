@@ -12,7 +12,7 @@ Room.prototype.run = function() {
 		console.log("Initializing room", this.name);
 		//Initialize build queue
 		this.memory.buildQueue = [];
-
+		this.memory.buildQueueTypeCount = {};
 		//Initialize room level
 		this.memory.roomLevel = 1;
 
