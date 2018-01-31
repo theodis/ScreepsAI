@@ -117,3 +117,26 @@ Room.prototype.isFreeSpot = function(x,y,width=1,height=1,radius=0) {
 	}
 	return valid;
 }
+
+
+Object.defineProperty(Room.prototype, 'buildTargets', {
+	get: function() { return this.find(FIND_CONSTRUCTION_SITES); },
+	enumerable: false,
+	configurable: true
+});
+
+Room.prototype.nearestBuildTarget = function(x,y) {
+	let targets = this.buildTargets;
+	let min = 9999;
+	let best = null;
+
+	targets.forEach(target => {
+		let dist = Math.abs(x - target.pos.x) + Math.abs(y - target.pos.y);
+		if(dist < min) {
+			min = dist;
+			best = target;
+		}
+	});
+
+	return best;
+}
