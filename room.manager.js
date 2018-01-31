@@ -141,8 +141,7 @@ Object.defineProperty(Room.prototype, 'mine', {
 
 Object.defineProperty(Room.prototype, 'repairTargetCount', {
 	get: function() {
-		if(this.memory.repairTargets) return this.memory.repairTargets.length;
-		return 0;
+		return this.repairTargets.length;
 	},
 	enumerable: false,
 	configurable: true
@@ -150,15 +149,7 @@ Object.defineProperty(Room.prototype, 'repairTargetCount', {
 
 Object.defineProperty(Room.prototype, 'repairTargets', {
 	get: function() {
-		if(!this.memory.repairTargets || Game.time > this.memory.repairTargetsTime + 100) {
-			let targets = [];
-			this.find(FIND_MY_STRUCTURES, {filter: struct => struct.hits < struct.hitsMax / 2 }).forEach(struct => {
-				targets.push({id: struct.id, x: struct.pos.x, y: struct.pos.y});
-			});
-			this.memory.repairTargets = targets;
-			this.memory.repairTargetsTime = Game.time;
-		}
-		return this.memory.repairTargets;
+		return this.find(FIND_STRUCTURES, {filter: struct => struct.hits < struct.hitsMax / 2 });
 	},
 	enumerable: false,
 	configurable: true
@@ -168,7 +159,7 @@ Room.prototype.getRepairTarget = function() {
 	let repairTargets = this.repairTargets;
 	if(!repairTargets.length) return null;
 
-	let ret = Game.getObjectById(repairTarget.pop().id);
+	let ret = repairTargets.pop();
 	return ret;
 }
 
