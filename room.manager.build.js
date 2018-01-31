@@ -195,6 +195,8 @@ Room.prototype.getTowerSpot = function() {
 
 	let rx = Math.round(x/count);
 	let ry = Math.round(y/count);
+	rx = Math.min(Math.max(2,rx), 47);
+	ry = Math.min(Math.max(2,ry), 47);
 	return this.getFreeSpotNear(rx,ry,1,1,1);
 }
 
@@ -258,8 +260,10 @@ Room.prototype.setUpBuildQueue = function() {
 	//Build as many towers with roads as possible
 	for(let i = 0; i < remaining["tower"]; i++) {
 		let pos = this.getTowerSpot();
-		this.queueConstruction(pos, "tower");
 		this.buildRoad(pos, storageSpot);
+		this.buildRoadAround(pos.x, pos.y,2,2,1);
+		this.queueConstruction(pos, "tower");
+
 	}
 
 	//Build as many extensions as possible
@@ -267,11 +271,11 @@ Room.prototype.setUpBuildQueue = function() {
 
 	while(count >= 4) {
 		let pos = this.getFreeSpotNear(storageSpot.x,storageSpot.y,2,2,1);
+		this.buildRoad(pos, storageSpot);
 		this.buildRoadAround(pos.x, pos.y,2,2,1);
 		for(let j = 0; j < 2; j++)
 			for(let i = 0; i < 2; i++)
 				this.queueConstruction({x: pos.x + i, y: pos.y + j}, "extension");
-		this.buildRoad(pos, storageSpot);
 		count -= 4;
 	}
 
