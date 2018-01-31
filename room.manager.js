@@ -147,6 +147,7 @@ Object.defineProperty(Room.prototype, 'repairTargetCount', {
 	configurable: true
 });
 
+//TODO Make sure not to fix enemy structures!
 Object.defineProperty(Room.prototype, 'repairTargets', {
 	get: function() {
 		return this.find(FIND_STRUCTURES, {filter: struct => struct.hits < struct.hitsMax / 2 });
