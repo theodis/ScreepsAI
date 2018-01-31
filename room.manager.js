@@ -23,43 +23,6 @@ Room.prototype.run = function() {
 		let spots = this.sourceContainerSpots;
 		let mineSpots = this.sourceMineSpots;
 
-		//Road from storage to spawn
-		this.buildRoad(storageSpot, spawn.pos);
-
-		//Place containers
-		//Road from storage to containers
-		//Road from containers to source mine spots
-		Object.keys(spots).forEach(key => {
-			let pos = spots[key];
-			let roomPos = new RoomPosition(pos.x,pos.y,this.name);
-			this.createConstructionSite(roomPos, "container");
-			this.buildRoad(roomPos, storageSpot);
-
-			//Road from container to mining spots
-			mineSpots[key].forEach(mineSpot => {
-				let mineSpotPos = new RoomPosition(mineSpot.x,mineSpot.y,this.name);
-				this.buildRoad(roomPos, mineSpotPos);
-			});
-		});
-
-		//Road from storage to controller
-		this.buildRoad(storageSpot, this.controller.pos);
-
-		//Roads around storage
-		this.buildRoadAround(storageSpot.x, storageSpot.y);
-
-		//Roads around containers
-		Object.keys(spots).forEach(key => {
-			let pos = spots[key];
-			this.buildRoadAround(pos.x, pos.y);
-		});
-
-		//Roads around spawnCreep
-		this.buildRoadAround(spawn.pos.x, spawn.pos.y);
-
-		//Roads around controller
-		this.buildRoadAround(this.controller.pos.x, this.controller.pos.y);
-
 		this.memory.initialized = true;
 
 	}.bind(this);
@@ -70,7 +33,7 @@ Room.prototype.run = function() {
 
 	const maintenance = function() {
 		let constructionCount = this.find(FIND_CONSTRUCTION_SITES).length;
-		//if(constructionCount < Room.MAX_CONSTRUCTION_SITES) this.buildQueuedRoads(Room.MAX_CONSTRUCTION_SITES - constructionCount);
+		if(constructionCount < Room.MAX_CONSTRUCTION_SITES) this.buildQueued(Room.MAX_CONSTRUCTION_SITES - constructionCount);
 	}.bind(this);
 
 	const planning = function() {
@@ -85,6 +48,8 @@ Room.prototype.run = function() {
 
 		//Build workers until containers are built
 		//Then build miners and cargo
+
+		this.setUpBuildQueue();
 	}.bind(this);
 
 	if(!this.memory.initialized){
