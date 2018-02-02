@@ -41,7 +41,7 @@ Room.prototype.run = function() {
 
 	const loop = function() {
 		const defaultWorkerLoadout = [WORK, WORK, CARRY, MOVE]
-		if(!spawn.spawning && Object.keys(Game.creeps).length < 8) {
+		if(!spawn.spawning && this.getCreepsByRole("worker").length < 8) {
 			let name = "Bob" + Game.time;
 			spawn.spawnCreep(defaultWorkerLoadout,name,{memory: {role: "worker"}});
 		}
@@ -68,6 +68,21 @@ Room.prototype.findTypes = function(types, opts) {
 	types.forEach(type => ret.push(...this.find(type,opts)));
 	return ret;
 }
+
+Room.prototype.getCreepsByRole = function(role) {
+	let ret = [];
+	this.creeps.forEach(creep => {
+		if(creep.role === role) ret.push(creep);
+	});
+	return ret;
+}
+
+Object.defineProperty(Room.prototype, 'creeps', {
+	get: function() { return this.find(FIND_MY_CREEPS); },
+	enumerable: false,
+	configurable: true
+});
+
 
 Object.defineProperty(Room.prototype, 'storageSpot', {
 	get: function() {
