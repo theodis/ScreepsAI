@@ -40,10 +40,10 @@ Room.prototype.run = function() {
 	}.bind(this);
 
 	const loop = function() {
-		const defaultWorkerLoadout = [WORK, WORK, CARRY, MOVE]
 		if(!spawn.spawning && this.getCreepsByRole("worker").length < 8) {
 			let name = "Bob" + Game.time;
-			spawn.spawnCreep(defaultWorkerLoadout,name,{memory: {role: "worker"}});
+			let loadout = Creep.getRoleLoadout("worker", 300);
+			spawn.spawnCreep(loadout,name,{memory: {role: "worker"}});
 		}
 
 		//Build workers until containers are built
