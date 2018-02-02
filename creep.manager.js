@@ -25,3 +25,35 @@ Creep.prototype.revokeClaim = function() {
 	}
 }
 
+Creep.getLoadOut = function(cost, weights, baseLoadout = []) {
+	var weightsum = {}
+	var ret = []
+	var totalcost = 0;
+
+	function getNextPart() {
+		let min = 9999;
+		let next = null;
+		for(let part in weightsum) {
+			if(weightsum[part] < min){
+				min = weightsum[part];
+				next = part;
+			}
+		}
+		return next;
+	}
+
+	function addPart(part) {
+		if(totalcost + BODYPART_COST[part] > cost) return false;
+		totalcost += BODYPART_COST[part];
+		if(part in weights) weightsum[part] += 1 / weights[part];
+		ret.push(part);
+		return true;
+	}
+
+	Object.keys(weights).forEach(part => weightsum[part] = 0);
+	baseLoadout.forEach(addPart);
+
+	while(ret.length < 50 && (part = getNextPart())) if(!addPart(part)) delete weightsum[part];
+
+	return ret;
+}

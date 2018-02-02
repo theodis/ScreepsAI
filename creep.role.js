@@ -4,6 +4,32 @@ Creep.role = {
 	worker: require('creep.role.worker'),
 }
 
+Creep.roleBaseLoadout = {
+	carry: [MOVE, CARRY],
+	miner: [MOVE, CARRY, WORK],
+	worker: [MOVE, CARRY, WORK],
+}
+
+Creep.roleLoadoutWeights = {
+	carry: {
+		move: 1,
+		carry: 2,
+	},
+	miner: {
+		work: 5,
+		carry: 1,
+	},
+	worker: {
+		work: 1,
+		carry: 1,
+		move: 1
+	},
+}
+
+Creep.getRoleLoadout = function(role, cost) {
+	return Creep.getLoadOut(cost, Creep.roleLoadoutWeights[role], Creep.roleBaseLoadout[role]);
+}
+
 Object.defineProperty(Creep.prototype, 'role', {
 	get: function() { return this.memory.role; },
 	set: function(newRole) {
