@@ -39,11 +39,16 @@ Room.prototype.run = function() {
 	const planning = function() {
 	}.bind(this);
 
+	const handleTowers = function() {
+		let towers = this.find(FIND_MY_STRUCTURES, {filter: struct => struct.structureType === "tower"});
+		if(towers.length === 0) return;
+		let enemies = this.find(FIND_HOSTILE_CREEPS);
+		if(enemies.length) towers.forEach(tower => tower.attack(enemies[0]));
+	}.bind(this);
+
 	const loop = function() {
 		if(!spawn.spawning) this.handleSpawns();
-
-		//Build workers until containers are built
-		//Then build miners and cargo
+		handleTowers();
 
 		this.setUpBuildQueue();
 	}.bind(this);
@@ -73,6 +78,9 @@ Room.prototype.handleSpawns = function() {
 	let carrys = creepsByRole["carry"] ? creepsByRole["carry"].length : 0;
 	let sourceCount = this.find(FIND_SOURCES).length;
 
+	let maxWorkers = 0;
+	if(this.storage) maxWorkers = Math.max(Math.round(this.storage.store.energy / 50000), 2);
+
 	if(miners == 0 && carrys == 0 && workers < 8) {
 		let name = "BasicWorker" + Game.time;
 		let loadout = Creep.getRoleLoadout("worker", this.energyAvailable);
@@ -88,7 +96,7 @@ Room.prototype.handleSpawns = function() {
 		let loadout = Creep.getRoleLoadout("carry", this.energyAvailable);
 		this.mainSpawn.spawnCreep(loadout,name,{memory: {role: "carry"}});
 		console.log("Spawning", name);
-	} else if(workers < 8) {
+	} else if(workers < maxWorkers) {
 		let name = "Worker" + Game.time;
 		let loadout = Creep.getRoleLoadout("worker", this.energyAvailable);
 		this.mainSpawn.spawnCreep(loadout,name,{memory: {role: "worker"}});
