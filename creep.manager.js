@@ -18,13 +18,14 @@ Creep.prototype.run = function() {
 }
 
 Creep.prototype.getClaim = function() {
-	if(!this.memory.claim) this.memory.claim = this.room.claimSourceMineSpot(this.carryCapacity, this);
+	if(!this.memory.claim) { this.memory.claim = this.room.claimSourceMineSpot(this.carryCapacity, this); }
 	return this.memory.claim;
 }
 
 Creep.prototype.revokeClaim = function() {
 	let claim = this.memory.claim;
 	if(claim) {
+		this.memory.claimContainerID = this.room.getClaimContainer(claim).id;
 		this.room.unclaimSourceMineSpot(claim);
 		delete this.memory.claim;
 	}

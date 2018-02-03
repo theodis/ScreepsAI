@@ -95,3 +95,8 @@ Object.defineProperty(Room.prototype, 'sourceClaims', {
 	configurable: true
 });
 
+Room.prototype.getClaimContainer = function(claim) {
+	let containerPos = this.sourceContainerSpots[claim.id];
+	let structures = this.lookForAt(LOOK_STRUCTURES,containerPos.x,containerPos.y);
+	return structures.find(struct => struct.structureType === "container");
+}

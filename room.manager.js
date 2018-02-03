@@ -65,12 +65,34 @@ Room.prototype.handleSpawns = function() {
 	//If zero carry creeps, build one extentionless carry
 	//If one carry wait for extensions to be full to make second
 	//If two carries, replace mining creep with extention mining creep
-	let creepsByRole = this.creepsByRole;
+	if(this.energyAvailable < 300) return;
 
-	if(creepsByRole["worker"].length < 8) {
-		let name = "Bob" + Game.time;
-		let loadout = Creep.getRoleLoadout("worker", 300);
+	let creepsByRole = this.creepsByRole;
+	let workers = creepsByRole["worker"] ? creepsByRole["worker"].length : 0;
+	let miners = creepsByRole["miner"] ? creepsByRole["miner"].length : 0;
+	let carrys = creepsByRole["carry"] ? creepsByRole["carry"].length : 0;
+	let sourceCount = this.find(FIND_SOURCES).length;
+
+	if(miners == 0 && carrys == 0 && workers < 8) {
+		let name = "BasicWorker" + Game.time;
+		let loadout = Creep.getRoleLoadout("worker", this.energyAvailable);
 		this.mainSpawn.spawnCreep(loadout,name,{memory: {role: "worker"}});
+		console.log("Spawning", name);
+	} else if(miners < sourceCount) {
+		let name = "Miner" + Game.time;
+		let loadout = Creep.getRoleLoadout("miner", this.energyAvailable);
+		this.mainSpawn.spawnCreep(loadout,name,{memory: {role: "miner"}});
+		console.log("Spawning", name);
+	} else if(carrys < sourceCount) {
+		let name = "Carry" + Game.time;
+		let loadout = Creep.getRoleLoadout("carry", this.energyAvailable);
+		this.mainSpawn.spawnCreep(loadout,name,{memory: {role: "carry"}});
+		console.log("Spawning", name);
+	} else if(workers < 8) {
+		let name = "Worker" + Game.time;
+		let loadout = Creep.getRoleLoadout("worker", this.energyAvailable);
+		this.mainSpawn.spawnCreep(loadout,name,{memory: {role: "worker"}});
+		console.log("Spawning", name);
 	}
 }
 
@@ -210,9 +232,9 @@ Object.defineProperty(Room.prototype, 'bestContainer', {
 	get: function() {
 		let max = 0;
 		let best = null;
-		this.find(FIND_MY_STRUCTURES, {filter: struct => struct.structureType === "container"}).forEach(container => {
-			if(container.energy > max) {
-				max = container.energy;
+		this.find(FIND_STRUCTURES, {filter: struct => struct.structureType === "container" }).forEach(container => {
+			if(container.store.energy > max) {
+				max = container.store.energy;
 				best = container;
 			}
 		});

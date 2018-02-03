@@ -15,9 +15,16 @@ module.exports = {
 		if(this.task) {
 			//Carry on
 		} else if(this.carry.energy === 0) {
-			if(!this.memory.claim) this.memory.claim = this.room.claimSourceMineSpot(this.carryCapacity, this);
-			let mineSpot = this.memory.claim;
-			if(mineSpot === null) return false;
+			//Grab a claim if don't already have one
+			this.assignTask({name: "mine"});
+		} else {
+			//Drop off energy
+			let target = null;
+			//console.log(claim, this.room.getClaimContainer(claim));
+			if(this.memory.claimContainerID) target = Game.getObjectById(this.memory.claimContainerID);
+			if(!target && this.room.storage) target = this.room.storage;
+			if(!target) target = this.room.mainSpawn;
+			this.assignTask({name: "mini_move", action: "transfer", target_id: target.id, action_params: [RESOURCE_ENERGY]});
 		}
 	},
 };

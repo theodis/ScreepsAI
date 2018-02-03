@@ -34,7 +34,10 @@ Creep.prototype.runSubTask = function(task) {
 			Creep.task[subtask.name].stop.bind(this)(subtask);
 			continue_task = "continue";
 			task.subtaskIndex++;
-			Creep.task[subtask.name].start.bind(this)(subtask);
+			if(task.subtask[task.subtaskIndex])
+				Creep.task[task.subtask[task.subtaskIndex].name].start.bind(this)(subtask);
+		} else if(continue_task === "fail") {
+			Creep.task[subtask.name].stop.bind(this)(subtask);
 		}
 	}
 

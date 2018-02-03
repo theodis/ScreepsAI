@@ -9,17 +9,17 @@ module.exports = {
 		// 2.) Containers
 		// 3.) Sources
 
-		if(this.room.storage && this.room.storage.energy >= this.carryCapacity) {
+		if(this.room.storage && this.room.storage.store.energy >= this.carryCapacity) {
 			// Get energy from storage
 			task.subtask = [
 				{name: "mini_move", action: "withdraw", target_id: this.room.storage.id, action_params: [RESOURCE_ENERGY]},
 			];
-		} else if(this.room.bestContainer && this.room.bestConainter.energy >= this.carryCapacity) {
+		} else if(this.room.bestContainer && this.room.bestContainer.store.energy >= this.carryCapacity) {
 			// Get energy from best container
 			task.subtask = [
-				{name: "mini_move", action: "withdraw", target_id: this.room.bestConainter.id, action_params: [RESOURCE_ENERGY]},
+				{name: "mini_move", action: "withdraw", target_id: this.room.bestContainer.id, action_params: [RESOURCE_ENERGY]},
 			];
-		} else if(this.getClaim()){
+		} else if(this.memory.claim || this.room.peekClaimSourceMineSpot(this.carryCapacity)){
 			//Grab a claim if don't already have one
 			task.subtask = [ {name: "mine"} ];
 		} else {
