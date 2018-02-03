@@ -9,7 +9,6 @@ module.exports = {
 		// 2.) Containers
 		// 3.) Sources
 
-		task.subtaskIndex = 0;
 		if(this.room.storage && this.room.storage.energy >= this.carryCapacity) {
 			// Get energy from storage
 			task.subtask = [
@@ -20,18 +19,9 @@ module.exports = {
 			task.subtask = [
 				{name: "mini_move", action: "withdraw", target_id: this.room.bestConainter.id, action_params: [RESOURCE_ENERGY]},
 			];
-		} else if(this.room.peekClaimSourceMineSpot(this.carryCapacity, this)){
-
+		} else if(this.getClaim()){
 			//Grab a claim if don't already have one
-
-			if(!this.memory.claim) this.memory.claim = this.room.claimSourceMineSpot(this.carryCapacity, this);
-			let mineSpot = this.memory.claim;
-			if(mineSpot === null) return false;
-
-			task.subtask = [
-				{name: "mini_move", x: mineSpot.x, y: mineSpot.y},
-				{name: "mini_mine", target_id: mineSpot.id },
-			];
+			task.subtask = [ {name: "mine"} ];
 		} else {
 			return false; //Nowhere to get energy
 		}

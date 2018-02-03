@@ -1,5 +1,6 @@
 Creep.task = {
 	get_energy: require('creep.task.get_energy'),
+	mine: require('creep.task.mine'),
 	repair: require('creep.task.repair'),
 	build: require('creep.task.build'),
 	upgrade: require('creep.task.upgrade'),
@@ -18,12 +19,22 @@ Object.defineProperty(Creep.prototype, 'task', {
 
 Creep.prototype.runSubTask = function(task) {
 	let continue_task = "done";
+
+	let init = false;
+	if(typeof(task.subtaskIndex) === "undefined" ) {
+		task.subtaskIndex = 0;
+		init = true;
+	}
 	let subtask = task.subtask[task.subtaskIndex];
+	if(init) Creep.task[subtask.name].start.bind(this)(subtask);
+
 	if( subtask && subtask.name in Creep.task) {
 		continue_task = Creep.task[subtask.name].run.bind(this)(subtask);
 		if(continue_task === "done") {
+			Creep.task[subtask.name].stop.bind(this)(subtask);
 			continue_task = "continue";
 			task.subtaskIndex++;
+			Creep.task[subtask.name].start.bind(this)(subtask);
 		}
 	}
 

@@ -40,11 +40,7 @@ Room.prototype.run = function() {
 	}.bind(this);
 
 	const loop = function() {
-		if(!spawn.spawning && this.getCreepsByRole("worker").length < 8) {
-			let name = "Bob" + Game.time;
-			let loadout = Creep.getRoleLoadout("worker", 300);
-			spawn.spawnCreep(loadout,name,{memory: {role: "worker"}});
-		}
+		if(!spawn.spawning) this.handleSpawns();
 
 		//Build workers until containers are built
 		//Then build miners and cargo
@@ -63,26 +59,45 @@ Room.prototype.run = function() {
 
 }
 
+Room.prototype.handleSpawns = function() {
+	//Initially build one worker per source spot until miner creeps
+	//When 2 containers are built, build one extentionless miner screep per source
+	//If zero carry creeps, build one extentionless carry
+	//If one carry wait for extensions to be full to make second
+	//If two carries, replace mining creep with extention mining creep
+	let creepsByRole = this.creepsByRole;
+
+	if(creepsByRole["worker"].length < 8) {
+		let name = "Bob" + Game.time;
+		let loadout = Creep.getRoleLoadout("worker", 300);
+		this.mainSpawn.spawnCreep(loadout,name,{memory: {role: "worker"}});
+	}
+}
+
 Room.prototype.findTypes = function(types, opts) {
 	let ret = [];
 	types.forEach(type => ret.push(...this.find(type,opts)));
 	return ret;
 }
 
-Room.prototype.getCreepsByRole = function(role) {
-	let ret = [];
-	this.creeps.forEach(creep => {
-		if(creep.role === role) ret.push(creep);
-	});
-	return ret;
-}
+Object.defineProperty(Room.prototype, 'creepsByRole', {
+	get: function() {
+		let ret = {};
+		this.creeps.forEach(creep => {
+			if(!ret[creep.role]) ret[creep.role] = [];
+			ret[creep.role].push(creep);
+		});
+		return ret;
+	},
+	enumerable: false,
+	configurable: true
+});
 
 Object.defineProperty(Room.prototype, 'creeps', {
 	get: function() { return this.find(FIND_MY_CREEPS); },
 	enumerable: false,
 	configurable: true
 });
-
 
 Object.defineProperty(Room.prototype, 'storageSpot', {
 	get: function() {
