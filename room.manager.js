@@ -29,6 +29,8 @@ Room.prototype.run = function() {
 
 	const levelUp = function(level) {
 		console.log("Room leveled up",this.name, level);
+		this.memory.lastBuildQueueUpdate = null;
+		this.setUpBuildQueue();
 	}.bind(this);
 
 	const maintenance = function() {
