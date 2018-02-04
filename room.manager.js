@@ -248,7 +248,7 @@ Room.prototype.getRepairTarget = function(pos) {
 		let min = 99999;
 
 		repairTargets.forEach(target => {
-			let dist = Math.max(Math.abs(pos.x - target.pos.x), Math.abs(pos.y - target.pos.y));
+			let dist = distance(pos,target);
 			if(dist < min) {
 				min = dist;
 				ret = target;

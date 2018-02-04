@@ -27,8 +27,14 @@ module.exports = {
 			this.assignTask({name: "get_energy"});
 		} else if(this.room.controller.ticksToDowngrade < 3000) {
 			this.assignTask({name: "upgrade", target_id: this.room.controller.id});
-		} else if(!this.room.cargoCreeps && mainSpawn.energy < mainSpawn.energyCapacity) {
+		} else if(mainSpawn.energy < mainSpawn.energyCapacity) {
 			this.assignTask({name: "mini_move", action: "transfer", target_id: mainSpawn.id, action_params: [RESOURCE_ENERGY]});
+		} else if(this.room.extensionsToFill.length) {
+			let best = null;
+			let min = 9999;
+			this.room.extensionsToFill.forEach(extension => {
+
+			});
 		} else if(this.room.repairTargetCount > 0) {
 			this.assignTask({name: "repair", target_id: this.room.getRepairTarget(this.pos).id});
 		} else if(this.room.buildTargets.length > 0) {

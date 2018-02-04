@@ -17,7 +17,7 @@ Room.prototype.peekClaimSourceMineSpot = function(minEnergy = 1, creep) {
 			let score = basescore;
 			let creeps = this.lookForAt(LOOK_CREEPS, spot[ind].x, spot[ind].y);
 			if(creeps.length && creeps[0] !== creep) continue;
-			if(creep) score -= (Math.abs(spot[ind].x - creep.pos.x) + Math.abs(spot[ind].y - creep.pos.y))* 100;
+			if(creep) score -= distance(spot[ind], creep) * 100;
 			if(source.energy >= minEnergy && score > max && claims[id].length) {
 				max = score;
 				maxId = id;

@@ -20,7 +20,7 @@ module.exports = {
 			if(result === OK || result === ERR_FULL || result == ERR_INVALID_TARGET) return "done";
 		}
 
-		let dist = Math.max(Math.abs(this.pos.x - pos.x), Math.abs(this.pos.y - pos.y));
+		let dist = distance(this,pos);
 		//If at the destination we're done
 		if( dist <= min_dist ) return "done";
 

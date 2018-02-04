@@ -37,7 +37,7 @@ module.exports = {
 				else {
 					let min = 9999;
 					extensions.forEach(extensioni => {
-						let dist = Math.max(Math.abs(this.pos.x - extensioni.pos.x), Math.abs(this.pos.y - extensioni.pos.y));
+						let dist = distance(this, extensioni);
 						if(dist < min) {
 							extension = extensioni;
 							min = dist;
