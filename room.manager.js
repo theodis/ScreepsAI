@@ -266,7 +266,7 @@ Room.prototype.getRepairTarget = function(pos) {
 
 Object.defineProperty(Room.prototype, 'bestContainer', {
 	get: function() {
-		let max = 0;
+		let max = 199;
 		let best = null;
 		this.find(FIND_STRUCTURES, {filter: struct => struct.structureType === "container" }).forEach(container => {
 			if(container.store.energy > max) {
