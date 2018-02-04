@@ -207,6 +207,10 @@ Room.prototype.setUpBuildQueue = function() {
 	let spawn = this.mainSpawn;
 
 	//Build order
+
+	//Build containers
+	Object.keys(spots).forEach(key => this.queueConstruction(spots[key], "container"));
+
 	//Road from source mine spots to containers
 	Object.keys(spots).forEach(key => {
 		let pos = spots[key];
@@ -241,9 +245,6 @@ Room.prototype.setUpBuildQueue = function() {
 	//Road around spawn
 	this.buildRoadAround(spawn.pos.x, spawn.pos.y);
 
-	//Build containers
-	Object.keys(spots).forEach(key => this.queueConstruction(spots[key], "container"));
-
 	//Build storage if high enough level
 	if(remaining["storage"]) this.queueConstruction(storageSpot, "storage");
 
@@ -253,9 +254,9 @@ Room.prototype.setUpBuildQueue = function() {
 	//Build as many towers with roads as possible
 	for(let i = 0; i < remaining["tower"]; i++) {
 		let pos = this.getTowerSpot();
+		this.queueConstruction(pos, "tower");
 		this.buildRoad(pos, storageSpot);
 		this.buildRoadAround(pos.x, pos.y,1,1,1);
-		this.queueConstruction(pos, "tower");
 
 	}
 
@@ -264,11 +265,11 @@ Room.prototype.setUpBuildQueue = function() {
 
 	while(count >= 4) {
 		let pos = this.getFreeSpotNear(storageSpot.x,storageSpot.y,2,2,1);
-		this.buildRoad(pos, storageSpot);
-		this.buildRoadAround(pos.x, pos.y,2,2,1);
 		for(let j = 0; j < 2; j++)
 			for(let i = 0; i < 2; i++)
 				this.queueConstruction({x: pos.x + i, y: pos.y + j}, "extension");
+		this.buildRoad(pos, storageSpot);
+		this.buildRoadAround(pos.x, pos.y,2,2,1);
 		count -= 4;
 	}
 

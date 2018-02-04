@@ -110,7 +110,7 @@ Room.prototype.handleSpawns = function() {
 	let name = null;
 	let role = null;
 
-	if(carrys == 0 && workers < this.sourceMineSpotCount) {
+	if(this.extensions.length < 12 && workers < this.sourceMineSpotCount) {
 		name = "BasicWorker" + Game.time;
 		role = "worker"
 	} else if(containerCount == sourceCount && miners < sourceCount) {
