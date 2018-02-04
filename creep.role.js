@@ -7,7 +7,7 @@ Creep.role = {
 Creep.roleBaseLoadout = {
 	carry: [MOVE, CARRY],
 	miner: [MOVE, CARRY, WORK],
-	worker: [MOVE, CARRY, WORK],
+	worker: [MOVE, CARRY, WORK, WORK],
 }
 
 Creep.roleLoadoutWeights = {
