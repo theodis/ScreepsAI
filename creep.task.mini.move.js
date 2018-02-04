@@ -6,6 +6,30 @@ module.exports = {
 		return true;
 	},
 	run: function(task) {
+		function canCancel() {
+			if(!target) return true;
+			switch(task.action) {
+				case "build":
+					return target.progress === target.progressTotal;
+				case "pickup":
+					return target.amount < 50;
+				case "withdraw":
+					return target.store.energy === 0;
+				case "repair":
+					return target.hits === target.hitsMax;
+				case "transfer":
+					if(target.structureType) {
+						switch(target.structureType) {
+							case "spawn":
+								return target.energy === target.energyCapacity;
+							case "container":
+							case "storage":
+								return target.store.energy === target.storeCapacity;
+						}
+					}
+			}
+		}
+
 		let target = null;
 		let pos = null;
 		let min_dist = task.min_dist || 0;
@@ -16,6 +40,7 @@ module.exports = {
 
 		//If the action can be done then it's close enough
 		if(target && task.action){
+			if(canCancel()) return "fail";
 			let result = this[task.action](target, ...action_params);
 			if(result === OK || result === ERR_FULL || result == ERR_INVALID_TARGET) return "done";
 		}
