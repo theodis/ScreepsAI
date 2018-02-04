@@ -18,7 +18,7 @@ module.exports = {
 			//Get some energy from storage
 			this.assignTask({name: "mini_move", action: "withdraw", target_id: storage.id, action_params: [RESOURCE_ENERGY]});
 		} else {
-			if(bestContainer.store.energy < bestContainer.storeCapacity * 2 / 3) {
+			if(bestContainer && bestContainer.store.energy < bestContainer.storeCapacity * 2 / 3) {
 				//Find something to do with the energy
 
 				//Maybe fill a tower?
