@@ -2,7 +2,10 @@ require('creep.role');
 require('creep.task');
 
 Creep.prototype.run = function() {
-	if(this.ticksToLive <= 200 && this.worthKeeping) this.assignTask({name: "renew"});
+	if(this.ticksToLive <= 200 && this.worthKeeping) {
+		this.drop("energy");
+		this.assignTask({name: "renew"});
+	}
 	if(this.role in Creep.role) Creep.role[this.role].run.bind(this)();
 	if(this.task && this.task.name in Creep.task) {
 		let task_data = this.memory.task;
