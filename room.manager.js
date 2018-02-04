@@ -110,13 +110,13 @@ Room.prototype.handleSpawns = function() {
 	let name = null;
 	let role = null;
 
-	if(miners == 0 && carrys == 0 && workers < this.sourceMineSpotCount) {
+	if(carrys == 0 && workers < this.sourceMineSpotCount) {
 		name = "BasicWorker" + Game.time;
 		role = "worker"
 	} else if(containerCount == sourceCount && miners < sourceCount) {
 		name = "Miner" + Game.time;
 		role = "miner"
-	} else if(containerCount == sourceCount && carrys < sourceCount) {
+	} else if(containerCount == sourceCount && carrys < 2 && this.extensions.length >= 4) {
 		name = "Carry" + Game.time;
 		role = "carry";
 	} else if(containerCount == sourceCount && workers < maxWorkers) {
@@ -283,6 +283,14 @@ Object.defineProperty(Room.prototype, 'bestContainer', {
 Object.defineProperty(Room.prototype, 'towersToFill', {
 	get: function() {
 		return this.find(FIND_MY_STRUCTURES, {filter: struct => struct.structureType === "tower"}).find(tower => tower.energy < tower.energyCapacity);
+	},
+	enumerable: false,
+	configurable: true
+});
+
+Object.defineProperty(Room.prototype, 'extensions', {
+	get: function() {
+		return this.find(FIND_MY_STRUCTURES, {filter: struct => struct.structureType === "extension" });
 	},
 	enumerable: false,
 	configurable: true

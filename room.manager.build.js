@@ -250,9 +250,6 @@ Room.prototype.setUpBuildQueue = function() {
 	//Build road from storage to controller
 	this.buildRoad(storageSpot, this.controller.pos);
 
-	//Roads around controller
-	this.buildRoadAround(this.controller.pos.x, this.controller.pos.y);
-
 	//Build as many towers with roads as possible
 	for(let i = 0; i < remaining["tower"]; i++) {
 		let pos = this.getTowerSpot();
