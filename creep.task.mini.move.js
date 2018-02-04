@@ -21,6 +21,7 @@ module.exports = {
 					if(target.structureType) {
 						switch(target.structureType) {
 							case "spawn":
+							case "extension":
 								return target.energy === target.energyCapacity;
 							case "container":
 							case "storage":
