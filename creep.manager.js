@@ -1,6 +1,17 @@
 require('creep.role');
 require('creep.task');
 
+Creep.prototype._repair = Creep.prototype.repair;
+
+Creep.prototype.repair = function(target) {
+	let result = this._repair(target);
+	if(result === OK) {
+		if(!global.repairs[target.id]) global.repairs[target.id] = 0;
+		global.repairs[target.id]++;
+	};
+	return result;
+}
+
 Creep.prototype.run = function() {
 	if(this.ticksToLive <= 200 && this.worthKeeping) {
 		this.drop("energy");

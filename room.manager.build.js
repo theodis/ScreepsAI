@@ -20,7 +20,7 @@ Room.prototype.queueConstruction = function(pos, type) {
 	let existingStruct = this.lookForAt(LOOK_STRUCTURES, pos.x, pos.y);
 	if(existingCons.length && existingCons[0].structureType === type) {}
 	else if(existingStruct.length && existingStruct[0].structureType === type) {}
-	else if(existingStruct.length && existingStruct[0].structureType !== "road") {}
+	else if(existingStruct.length && existingStruct[0].structureType !== STRUCTURE_ROAD) {}
 	else {
 		if(!buildQueueTypeCount[type]) buildQueueTypeCount[type] = 0;
 		buildQueueTypeCount[type]++;
@@ -59,7 +59,7 @@ Room.prototype.buildRoad = function(from, to) {
 	if(typeof from !== "RoomPosition") from = new RoomPosition(from.x, from.y, this.name);
 	let path = from.findPathTo(to, {ignoreCreeps: true, costCallback});
 	for(let pos of path)
-		this.queueConstruction({x: pos.x, y: pos.y}, "road");
+		this.queueConstruction({x: pos.x, y: pos.y}, STRUCTURE_ROAD);
 }
 
 Room.prototype.buildRoadAround = function(x,y,width=1,height=1,radius=1) {
@@ -71,7 +71,7 @@ Room.prototype.buildRoadAround = function(x,y,width=1,height=1,radius=1) {
 	for(let j = miny; j <= maxy; j++)
 		for(let i = minx; i <= maxx; i++)
 			if(!(i >= x && i <= x + width - 1 && j >= y && j <= y + height - 1))
-				this.queueConstruction({x: i, y: j}, "road");
+				this.queueConstruction({x: i, y: j}, STRUCTURE_ROAD);
 
 }
 
@@ -145,8 +145,8 @@ Room.prototype.isFreeSpot = function(x,y,width=1,height=1,radius=0) {
 	for(let tile of tiles) {
 		if(tile.type === "terrain" && tile.terrain !== "swamp" && tile.terrain !== "plain") { valid = false; break;}
 		if(tile.type === "flag") { valid = false; break;}
-		if(tile.type === "constructionSite" && tile.constructionSite.structureType !== "road") { valid = false; break;}
-		if(tile.type === "structure" && tile.structure.structureType !== "road") { valid = false; break;}
+		if(tile.type === "constructionSite" && tile.constructionSite.structureType !== STRUCTURE_ROAD) { valid = false; break;}
+		if(tile.type === "structure" && tile.structure.structureType !== STRUCTURE_ROAD) { valid = false; break;}
 	}
 	return valid;
 }
@@ -236,7 +236,7 @@ Room.prototype.setUpBuildQueue = function() {
 	//Build order
 
 	//Build containers
-	Object.keys(spots).forEach(key => this.queueConstruction(spots[key], "container"));
+	Object.keys(spots).forEach(key => this.queueConstruction(spots[key], STRUCTURE_CONTAINER));
 
 	//Road from source mine spots to containers
 	Object.keys(spots).forEach(key => {
@@ -273,37 +273,104 @@ Room.prototype.setUpBuildQueue = function() {
 	this.buildRoadAround(spawn.pos.x, spawn.pos.y);
 
 	//Build storage if high enough level
-	if(remaining["storage"]) this.queueConstruction(storageSpot, "storage");
+	if(remaining[STRUCTURE_STORAGE]) this.queueConstruction(storageSpot, STRUCTURE_STORAGE);
 
 	//Build road from storage to controller
 	this.buildRoad(storageSpot, this.controller.pos);
 
 	//Build as many towers with roads as possible
-	for(let i = 0; i < remaining["tower"]; i++) {
+	for(let i = 0; i < remaining[STRUCTURE_TOWER]; i++) {
 		let pos = this.getTowerSpot();
-		this.queueConstruction(pos, "tower");
+		this.queueConstruction(pos, STRUCTURE_TOWER);
 		this.buildRoad(pos, storageSpot);
 		this.buildRoadAround(pos.x, pos.y,1,1,1);
 
 	}
 
 	//Build as many extensions as possible
-	let count = remaining["extension"]
+	let count = remaining[STRUCTURE_EXTENSION]
 
 	while(count >= 4) {
 		let pos = this.getFreeSpotNear(storageSpot.x,storageSpot.y,2,2,1);
 		for(let j = 0; j < 2; j++)
 			for(let i = 0; i < 2; i++)
-				this.queueConstruction({x: pos.x + i, y: pos.y + j}, "extension");
+				this.queueConstruction({x: pos.x + i, y: pos.y + j}, STRUCTURE_EXTENSION);
 		this.buildRoad(pos, storageSpot);
 		this.buildRoadAround(pos.x, pos.y,2,2,1);
 		count -= 4;
 	}
 
-	//Build roads to exits when controller is level 3
-	if(this.controller.level >= 3) this.exitRoadSpots.forEach(exit => this.buildRoad(storageSpot, exit));
+	//Build roads to exits and walls when controller is level 3
+	if(this.controller.level >= 3) {
+		this.exitRoadSpots.forEach(exit => this.buildRoad(storageSpot, exit));
+		this.planWalls();
+	}
 
 	this.memory.lastBuildQueueUpdate = Game.time;
+}
+
+Room.prototype.planWalls = function() {
+	const wallAt = (function(pos) { return this.lookForAt(LOOK_TERRAIN, pos.x, pos.y)[0] === "wall"; }).bind(this);
+	function wallCheck(pos, vary, notvary, direction, awayDir) {
+		if(wallAt(pos)) return true;
+		let backpos = {}
+		backpos[vary] = pos[vary] - direction;
+		backpos[notvary] = pos[notvary] - awayDir;
+		return wallAt(backpos);
+	}
+
+	let exitGroups = this.exitGroups;
+
+	exitGroups.forEach(group => {
+		let first = group[0];
+		let last = group[group.length - 1];
+		let buildStuff = [];
+
+		//Get the bounds
+		let min = {x: first.x, y: first.y};
+		let max = {x: last.x, y: last.y};
+
+		//Get the axis that varies
+		let vary = min.x === max.x ? "y" : "x";
+		let notvary = vary === "x" ? "y" : "x";
+
+		//Direction away from border
+		let awayDir = min[notvary] === 0 ? 1 : -1;
+
+		//Move two away from border;
+		min[notvary] += awayDir * 2;
+		max[notvary] += awayDir * 2;
+
+		//Extend vary axis until terrain wall encountered
+		while(!wallCheck(min, vary, notvary, -1, awayDir) && min[vary] > 2) min[vary]--;
+
+		//FIXME: Assuming square rooms of size 50
+		while(!wallCheck(max, vary, notvary, 1, awayDir) && max[vary] < 47) max[vary]++;
+
+		//Populate build stuff with walls initially
+		for(let i = min[vary]; i <= max[vary]; i++) {
+			let pos = {};
+			pos[vary] = i;
+			pos[notvary] = min[notvary];
+			if(!wallAt(pos) && !this.lookForAt(LOOK_STRUCTURES, pos.x, pos.y).filter(struct => struct.structureType !== "road").length)
+				buildStuff.push({pos, type: STRUCTURE_WALL});
+		}
+
+		//Replace walls at roads with ramparts
+		for(let i in buildStuff) {
+			let cur = buildStuff[i];
+			//If any construction sites in the area then just wait for them to be finished
+			if(this.lookForAt(LOOK_CONSTRUCTION_SITES, cur.pos.x, cur.pos.y).length) return;
+
+			//If any structures replace this and any surrounding walls with ramparts
+			let road = this.lookForAt(LOOK_STRUCTURES, cur.pos.x, cur.pos.y).filter(struct => struct.structureType === "road")
+			if(road.length)
+				buildStuff.forEach(build => { if(distance(cur,build) <= 1) build.type = STRUCTURE_RAMPART;} );
+		}
+
+		//Queue up the stuff to build
+		buildStuff.forEach(build => this.queueConstruction({x: build.pos.x, y: build.pos.y}, build.type));
+	})
 }
 
 Object.defineProperty(Room.prototype, 'exitGroups', {

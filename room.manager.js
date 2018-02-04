@@ -213,8 +213,10 @@ Object.defineProperty(Room.prototype, 'sourceContainerSpots', {
 
 Object.defineProperty(Room.prototype, 'mainSpawn', {
 	get: function() {
-		if(!this.memory.mainSpawnID)
-			this.memory.mainSpawnID = this.find(FIND_MY_SPAWNS, {filter: spawn => spawn.name === `MainSpawn:${this.name}`})[0].id;
+		if(!this.memory.mainSpawnID) {
+			let mainSpawn = this.find(FIND_MY_SPAWNS, {filter: spawn => spawn.name === `MainSpawn:${this.name}`})[0];
+			if(mainSpawn) this.memory.mainSpawnID = mainSpawn.id;
+		}
 		return Game.getObjectById(this.memory.mainSpawnID);
 	},
 	enumerable: false,
@@ -238,7 +240,7 @@ Object.defineProperty(Room.prototype, 'repairTargetCount', {
 //TODO Make sure not to fix enemy structures!
 Object.defineProperty(Room.prototype, 'repairTargets', {
 	get: function() {
-		return this.find(FIND_STRUCTURES, {filter: struct => struct.hits < struct.hitsMax / 2 });
+		return this.find(FIND_STRUCTURES, {filter: struct => !(struct.id in repairs) && struct.hits < struct.hitsRepair });
 	},
 	enumerable: false,
 	configurable: true

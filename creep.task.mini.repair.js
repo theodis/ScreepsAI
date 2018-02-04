@@ -11,7 +11,7 @@ module.exports = {
 
 		//Done if target is fully healed
 		let target = Game.getObjectById(task.target_id);
-		if(target.hits === target.hitsMax) return "done";
+		if(target && target.hits === target.hitsMax) return "done";
 
 		let result = this.repair(target);
 		if(result === OK) return "continue";
