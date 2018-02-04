@@ -18,7 +18,7 @@ Creep.roleLoadoutWeights = {
 	miner: {
 		work: 5,
 		carry: 1,
-		move: 1,
+		move: 1.5,
 	},
 	worker: {
 		work: 1,
