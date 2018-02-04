@@ -6,7 +6,7 @@ module.exports = {
 		return true;
 	},
 	run: function(task) {
-		if(this.carry.ticksToLive > 1400) return done;
+		if(this.ticksToLive > 1400) return "done";
 		return "continue";
 	},
 };
