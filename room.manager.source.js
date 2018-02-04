@@ -12,7 +12,7 @@ Room.prototype.peekClaimSourceMineSpot = function(minEnergy = 1, creep) {
 
 		let basescore = source.energy;
 		basescore *= claimedRatio;
-
+		if(source.energy === source.energyCapacity && claimedRatio === 1) basescore *= 10;
 		for(let ind of claims[id]) {
 			let score = basescore;
 			let creeps = this.lookForAt(LOOK_CREEPS, spot[ind].x, spot[ind].y);

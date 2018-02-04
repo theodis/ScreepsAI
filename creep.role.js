@@ -23,7 +23,7 @@ Creep.roleLoadoutWeights = {
 	worker: {
 		work: 1,
 		carry: 1,
-		move: 1
+		move: 1.5
 	},
 }
 

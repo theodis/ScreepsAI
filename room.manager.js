@@ -81,27 +81,29 @@ Room.prototype.handleSpawns = function() {
 	let maxWorkers = 0;
 	if(this.storage) maxWorkers = Math.max(Math.round(this.storage.store.energy / 50000), 2);
 
+	let name = null;
+	let role = null;
+
 	if(miners == 0 && carrys == 0 && workers < 8) {
-		let name = "BasicWorker" + Game.time;
-		let loadout = Creep.getRoleLoadout("worker", this.energyAvailable);
-		this.mainSpawn.spawnCreep(loadout,name,{memory: {role: "worker"}});
-		console.log("Spawning", name);
-	} else if(miners < sourceCount) {
-		let name = "Miner" + Game.time;
-		let loadout = Creep.getRoleLoadout("miner", this.energyAvailable);
-		this.mainSpawn.spawnCreep(loadout,name,{memory: {role: "miner"}});
-		console.log("Spawning", name);
+		name = "BasicWorker" + Game.time;
+		role = "worker"
+	} else if(miners < sourceCount + 1) {
+		name = "Miner" + Game.time;
+		role = "miner"
 	} else if(carrys < sourceCount) {
-		let name = "Carry" + Game.time;
-		let loadout = Creep.getRoleLoadout("carry", this.energyAvailable);
-		this.mainSpawn.spawnCreep(loadout,name,{memory: {role: "carry"}});
-		console.log("Spawning", name);
+		name = "Carry" + Game.time;
+		role = "carry";
 	} else if(workers < maxWorkers) {
-		let name = "Worker" + Game.time;
-		let loadout = Creep.getRoleLoadout("worker", this.energyAvailable);
-		this.mainSpawn.spawnCreep(loadout,name,{memory: {role: "worker"}});
+		name = "Worker" + Game.time;
+		role = "worker";
+	}
+
+	if(name) {
+		let loadout = Creep.getRoleLoadout(role, this.energyAvailable);
+		this.mainSpawn.spawnCreep(loadout,name,{memory: {role, energyAvailable: this.energyAvailable}});
 		console.log("Spawning", name);
 	}
+
 }
 
 Room.prototype.findTypes = function(types, opts) {
