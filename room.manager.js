@@ -97,7 +97,7 @@ Room.prototype.handleSpawns = function() {
 	let miners = creepsByRole["miner"] ? creepsByRole["miner"].length : 0;
 	let carrys = creepsByRole["carry"] ? creepsByRole["carry"].length : 0;
 
-	if(this.energyAvailable < 300 || (carrys > 0 && this.energyAvailable < this.energyCapacityAvailable )) return;
+	if(this.energyAvailable < 300 || ((carrys > 0 || workers > 0) && this.energyAvailable < this.energyCapacityAvailable )) return;
 	let sourceCount = this.find(FIND_SOURCES).length;
 
 	let maxWorkers = 0;

@@ -33,8 +33,13 @@ module.exports = {
 			let best = null;
 			let min = 9999;
 			this.room.extensionsToFill.forEach(extension => {
-
+				let dist = distance(extension, this);
+				if(dist < min) {
+					min = dist;
+					best = extension;
+				}
 			});
+			this.assignTask({name: "mini_move", action: "transfer", target_id: best.id, action_params: [RESOURCE_ENERGY]});
 		} else if(this.room.repairTargetCount > 0) {
 			this.assignTask({name: "repair", target_id: this.room.getRepairTarget(this.pos).id});
 		} else if(this.room.buildTargets.length > 0) {
