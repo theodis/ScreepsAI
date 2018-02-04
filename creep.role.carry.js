@@ -29,7 +29,21 @@ module.exports = {
 				this.assignTask({name: "mini_move", action: "transfer", target_id: tower.id, action_params: [RESOURCE_ENERGY]});
 			} else if(extensions.length) {
 				//Fill an extensions
-				let extension = extensions[Math.floor(Math.random() * extensions.length)];
+				let extension = null;
+
+				//Random extension at max, nearest when not
+				if(this.carry.energy === this.carryCapacity)
+					extension = extensions[Math.floor(Math.random() * extensions.length)];
+				else {
+					let min = 9999;
+					extensions.forEach(extensioni => {
+						let dist = Math.max(Math.abs(this.pos.x - extensioni.pos.x), Math.abs(this.pos.y - extensioni.pos.y));
+						if(dist < min) {
+							extension = extensioni;
+							min = dist;
+						}
+					});
+				}
 				this.assignTask({name: "mini_move", action: "transfer", target_id: extension.id, action_params: [RESOURCE_ENERGY]});
 			} else if(mainSpawn && mainSpawn.energy < mainSpawn.energyCapacity) {
 				this.assignTask({name: "mini_move", action: "transfer", target_id: mainSpawn.id, action_params: [RESOURCE_ENERGY]});
