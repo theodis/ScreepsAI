@@ -84,6 +84,17 @@ Object.defineProperty(Room.prototype, 'sourceMineSpots', {
 	configurable: true
 });
 
+Object.defineProperty(Room.prototype, 'sourceMineSpotCount', {
+	get: function() {
+		let mineSpots = this.sourceMineSpots;
+		let count = 0;
+		for(let id in mineSpots) count += mineSpots[id].length;
+		return count;
+	},
+	enumerable: false,
+	configurable: true
+})
+
 Object.defineProperty(Room.prototype, 'sourceClaims', {
 	get: function() {
 		if(!this.memory.sourceMineSpots || !this.memory.sourceClaims) {

@@ -100,22 +100,24 @@ Room.prototype.handleSpawns = function() {
 	if(this.energyAvailable < 300 || ((carrys > 0 || workers > 0) && this.energyAvailable < this.energyCapacityAvailable )) return;
 	let sourceCount = this.find(FIND_SOURCES).length;
 
+	let containerCount = this.find(FIND_STRUCTURES, {filter: struct => struct.structureType === "container" }).length;
+
 	let maxWorkers = 0;
 	if(this.storage) maxWorkers = Math.max(Math.round(this.storage.store.energy / 50000), 2);
 
 	let name = null;
 	let role = null;
 
-	if(miners == 0 && carrys == 0 && workers < 8) {
+	if(miners == 0 && carrys == 0 && workers < this.sourceMineSpotCount) {
 		name = "BasicWorker" + Game.time;
 		role = "worker"
-	} else if(miners < sourceCount) {
+	} else if(containerCount == sourceCount && miners < sourceCount) {
 		name = "Miner" + Game.time;
 		role = "miner"
-	} else if(carrys < sourceCount) {
+	} else if(containerCount == sourceCount && carrys < sourceCount) {
 		name = "Carry" + Game.time;
 		role = "carry";
-	} else if(workers < maxWorkers) {
+	} else if(containerCount == sourceCount && workers < maxWorkers) {
 		name = "Worker" + Game.time;
 		role = "worker";
 	}
