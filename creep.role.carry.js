@@ -54,7 +54,7 @@ module.exports = {
 				this.assignTask({name: "mini_move", action: "transfer", target_id: target.id, action_params: [RESOURCE_ENERGY]});
 			} else {
 				//If no storage then wait by spawn
-				this.assignTask({name: "mini_move", action: "transfer", target_id: mainSpawn.id, action_params: [RESOURCE_ENERGY]});
+				this.assignTask({name: "mini_move", target_id: mainSpawn.id});
 			}
 		}
 	},

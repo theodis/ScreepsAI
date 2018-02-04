@@ -40,7 +40,7 @@ module.exports = {
 
 		//If the action can be done then it's close enough
 		if(target && task.action){
-			if(canCancel()) return "fail";
+			if(!task.no_cancel && canCancel()) return "fail";
 			let result = this[task.action](target, ...action_params);
 			if(result === OK || result === ERR_FULL || result == ERR_INVALID_TARGET) return "done";
 		}
