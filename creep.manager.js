@@ -63,3 +63,17 @@ Creep.getLoadOut = function(cost, weights, baseLoadout = []) {
 
 	return ret;
 }
+
+Object.defineProperty(Creep.prototype, 'worthKeeping', {
+	get: function() { return this.memory.energyAvailable >= this.room.energyCapacityAvailable * 0.8; },
+	enumerable: false,
+	configurable: true
+});
+
+Object.defineProperty(Creep.prototype, 'shouldRenew', {
+	get: function() {
+		return this.worthKeeping && this.memory.role !== "claim" && this.ticksToLive <= 1500 - Math.floor(600/this.body.length);
+	},
+	enumerable: false,
+	configurable: true
+});

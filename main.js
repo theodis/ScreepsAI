@@ -4,6 +4,7 @@ require('utility');
 require('empire.manager');
 require('room.manager');
 require('creep.manager');
+require('spawn.manager');
 
 module.exports.loop = function () {
 	Object.keys(Game.rooms).forEach(key => Game.rooms[key].run());

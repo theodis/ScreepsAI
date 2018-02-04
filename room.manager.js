@@ -48,6 +48,20 @@ Room.prototype.run = function() {
 
 	const loop = function() {
 		if(!spawn.spawning) this.handleSpawns();
+
+		//Maybe renew nearby creep
+		if(!spawn.spawning) {
+			let creeps = spawn.adjacentCreeps.filter(creep => creep.shouldRenew);
+			let min = 9999;
+			let creep = null;
+			creeps.forEach(creepi => {
+				if(creepi.ticksToLive < min){
+					creep = creepi;
+					min = creepi.ticksToLive;
+				}
+			});
+			if(creep) spawn.renewCreep(creep);
+		}
 		handleTowers();
 
 		this.setUpBuildQueue();
