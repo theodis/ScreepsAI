@@ -70,12 +70,13 @@ Room.prototype.handleSpawns = function() {
 	//If zero carry creeps, build one extentionless carry
 	//If one carry wait for extensions to be full to make second
 	//If two carries, replace mining creep with extention mining creep
-	if(this.energyAvailable < 300) return;
 
 	let creepsByRole = this.creepsByRole;
 	let workers = creepsByRole["worker"] ? creepsByRole["worker"].length : 0;
 	let miners = creepsByRole["miner"] ? creepsByRole["miner"].length : 0;
 	let carrys = creepsByRole["carry"] ? creepsByRole["carry"].length : 0;
+
+	if(this.energyAvailable < 300 || (carrys > 0 && this.energyAvailable < this.energyCapacityAvailable )) return;
 	let sourceCount = this.find(FIND_SOURCES).length;
 
 	let maxWorkers = 0;
