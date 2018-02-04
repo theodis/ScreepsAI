@@ -31,3 +31,4 @@ Room.prototype.forceSetupBuildQueue = function() {
 	this.memory.lastBuildQueueUpdate = null;
 	this.setUpBuildQueue();
 }
+

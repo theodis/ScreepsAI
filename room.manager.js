@@ -178,7 +178,7 @@ Object.defineProperty(Room.prototype, 'storageSpot', {
 				this.memory.storageSpot = pos;
 			}
 		}
-		return this.memory.storageSpot;
+		return new RoomPosition(this.memory.storageSpot.x, this.memory.storageSpot.y , this.name);
 	},
 	enumerable: false,
 	configurable: true

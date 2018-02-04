@@ -29,8 +29,35 @@ Room.prototype.queueConstruction = function(pos, type) {
 }
 
 Room.prototype.buildRoad = function(from, to) {
+	const costCallback = (rn, cm) => {
+		let newCM = cm.clone();
+
+		//Top and bottom
+		for(let i = 0; i < Room.WIDTH; i++) {
+			newCM.set(i,0,255)
+			if(newCM.get(i,1) === 0) newCM.set(i,1,10)
+			if(newCM.get(i,2) === 0) newCM.set(i,2,5)
+
+			newCM.set(i,Room.HEIGHT - 1,255)
+			if(newCM.get(i,Room.HEIGHT - 2) === 0) newCM.set(i,Room.HEIGHT - 2,10)
+			if(newCM.get(i,Room.HEIGHT - 3) === 0) newCM.set(i,Room.HEIGHT - 3,5)
+		}
+
+		//Left and right
+		for(let i = 0; i < Room.HEIGHT; i++) {
+			newCM.set(0,i,255)
+			if(newCM.get(1,i) === 0) newCM.set(1,i,10)
+			if(newCM.get(2,i) === 0) newCM.set(2,i,5)
+
+			newCM.set(Room.WIDTH - 1,i,255)
+			if(newCM.get(Room.WIDTH - 2,i) === 0) newCM.set(Room.WIDTH - 2,i,10)
+			if(newCM.get(Room.WIDTH - 3,i) === 0) newCM.set(Room.WIDTH - 3,i,5)
+		}
+		return newCM;
+	}
+
 	if(typeof from !== "RoomPosition") from = new RoomPosition(from.x, from.y, this.name);
-	let path = from.findPathTo(to, {ignoreCreeps: true});
+	let path = from.findPathTo(to, {ignoreCreeps: true, costCallback});
 	for(let pos of path)
 		this.queueConstruction({x: pos.x, y: pos.y}, "road");
 }
@@ -273,8 +300,8 @@ Room.prototype.setUpBuildQueue = function() {
 		count -= 4;
 	}
 
-	//Build roads to exits when a storage has been built
-	if(this.storage) this.exitRoadSpots.forEach(exit => this.buildRoad(storageSpot, exit));
+	//Build roads to exits when controller is level 3
+	if(this.controller.level >= 3) this.exitRoadSpots.forEach(exit => this.buildRoad(storageSpot, exit));
 
 	this.memory.lastBuildQueueUpdate = Game.time;
 }
