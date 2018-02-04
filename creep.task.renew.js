@@ -1,17 +1,15 @@
 module.exports = {
 	start: function(task) {
-		let mineSpot = this.getClaim();
-		if(!mineSpot) return false;
+		task.subtaskIndex = 0;
 		task.subtask = [
-			{name: "mini_move", x: mineSpot.x, y: mineSpot.y},
-			{name: "mini_mine", target_id: mineSpot.id },
-		];
+			{name: "mini_move", target_id: this.room.mainSpawn.id , min_dist: 1},
+			{name: "mini_renew" },
+		]
 
 		return true;
 	},
 	stop: function(task) {
 		//No preconditions to stop
-		this.revokeClaim();
 		return true;
 	},
 	run: function(task) {

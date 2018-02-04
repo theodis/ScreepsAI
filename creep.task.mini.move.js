@@ -8,7 +8,7 @@ module.exports = {
 	run: function(task) {
 		let target = null;
 		let pos = null;
-		let mindist = task.mindist || 0;
+		let min_dist = task.min_dist || 0;
 
 		let action_params = task.action_params || [];
 		if(task.target_id) target = Game.getObjectById(task.target_id);
@@ -22,7 +22,7 @@ module.exports = {
 
 		let dist = Math.max(Math.abs(this.pos.x - pos.x), Math.abs(this.pos.y - pos.y));
 		//If at the destination we're done
-		if( dist <= mindist ) return "done";
+		if( dist <= min_dist ) return "done";
 
 		//Otherwise move to target
 		let result = null
