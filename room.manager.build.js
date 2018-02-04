@@ -7,8 +7,6 @@ Room.prototype.buildQueued = function(count) {
 	let buildQueueTypeCount = this.memory.buildQueueTypeCount;
 	while(count && buildQueue && buildQueue.length) {
 		let cur = buildQueue.shift();
-		let existingCons = this.lookForAt(LOOK_CONSTRUCTION_SITES, cur.x, cur.y);
-		if(existingCons.length && existingCons[0].structureType === "road" && cur.type !== "road") existingCons[0].remove();
 		this.createConstructionSite(new RoomPosition(cur.x,cur.y,this.name), cur.type);
 		buildQueueTypeCount[cur.type]--;
 		count--;
