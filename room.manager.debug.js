@@ -1,5 +1,7 @@
 Room.prototype.reset = function() {this.clear(); this.resetMemory();}
-Room.prototype.resetMemory = function() {Object.keys(this.memory).forEach(key => delete this.memory[key]); };
+Room.prototype.resetMemory = function() {
+	Object.keys(Memory).forEach(key => delete Memory[key]);
+};
 
 Room.prototype.clear = function() {
 	this.find(FIND_FLAGS).forEach(flag => flag.remove());

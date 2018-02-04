@@ -32,7 +32,7 @@ Room.prototype.queueConstruction = function(pos, type) {
 
 Room.prototype.buildRoad = function(from, to) {
 	if(typeof from !== "RoomPosition") from = new RoomPosition(from.x, from.y, this.name);
-	let path = from.findPathTo(to);
+	let path = from.findPathTo(to, {ignoreCreeps: true});
 	for(let pos of path)
 		this.queueConstruction({x: pos.x, y: pos.y}, "road");
 }
@@ -277,5 +277,73 @@ Room.prototype.setUpBuildQueue = function() {
 		count -= 4;
 	}
 
+	//Build roads to exits when a storage has been built
+	if(this.storage) this.exitRoadSpots.forEach(exit => this.buildRoad(storageSpot, exit));
+
 	this.memory.lastBuildQueueUpdate = Game.time;
 }
+
+Object.defineProperty(Room.prototype, 'exitGroups', {
+	get: function() {
+		function groupExits(positions, vertical) {
+			if(!positions.length) return [];
+			positions.sort((a,b) => vertical ? b.y - a.y : b.x - a.x);
+			ret = [];
+			curGroup = [];
+			while(positions.length) {
+				cur = positions.pop();
+				last = curGroup.length ? curGroup[curGroup.length-1] : null;
+				if(!last || (vertical ? cur.y === last.y + 1 : cur.x === last.x + 1))
+					curGroup.push(cur);
+				else {
+					ret.push(curGroup);
+					curGroup = [cur];
+				}
+			}
+			ret.push(curGroup);
+			return ret;
+		}
+
+		return [
+			...groupExits(this.find(FIND_EXIT_TOP, false)),
+			...groupExits(this.find(FIND_EXIT_BOTTOM), false),
+			...groupExits(this.find(FIND_EXIT_LEFT), true),
+			...groupExits(this.find(FIND_EXIT_RIGHT), true),
+		];
+	},
+	enumerable: false,
+	configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'exitRoadSpots', {
+	get: function() {
+		return this.exitGroups.map(group => {
+			let first = group[0];
+			let last = group[group.length-1];
+			let avgx = Math.round((first.x + last.x)/2);
+			let avgy = Math.round((first.y + last.y)/2);
+			if(first.x === last.x) {
+				//Vertical
+				if(first.x === 0) {
+					//Left
+					avgx++;
+				} else {
+					//Right
+					avgx--;
+				}
+			} else {
+				//Horizontal
+				if(first.y === 0) {
+					//Top
+					avgy++;
+				} else {
+					//Bottom
+					avgy--;
+				}
+			}
+			return new RoomPosition(avgx,avgy,this.name);
+		})
+	},
+	enumerable: false,
+	configurable: true
+})
