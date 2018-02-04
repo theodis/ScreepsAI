@@ -47,11 +47,14 @@ module.exports = {
 				this.assignTask({name: "mini_move", action: "transfer", target_id: extension.id, action_params: [RESOURCE_ENERGY]});
 			} else if(mainSpawn && mainSpawn.energy < mainSpawn.energyCapacity) {
 				this.assignTask({name: "mini_move", action: "transfer", target_id: mainSpawn.id, action_params: [RESOURCE_ENERGY]});
-			} else {
+			} else if(this.room.storage){
 				//Drop off energy in storage
 				let target = this.room.storage;
 				if(this.room.mainSpawn.energy < this.room.mainSpawn.energyCapacity) target = this.room.mainSpawn;
 				this.assignTask({name: "mini_move", action: "transfer", target_id: target.id, action_params: [RESOURCE_ENERGY]});
+			} else {
+				//If no storage then wait by spawn
+				this.assignTask({name: "mini_move", action: "transfer", target_id: mainSpawn.id, action_params: [RESOURCE_ENERGY]});
 			}
 		}
 	},

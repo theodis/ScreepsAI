@@ -254,7 +254,7 @@ Room.prototype.setUpBuildQueue = function() {
 	for(let i = 0; i < remaining["tower"]; i++) {
 		let pos = this.getTowerSpot();
 		this.buildRoad(pos, storageSpot);
-		this.buildRoadAround(pos.x, pos.y,2,2,1);
+		this.buildRoadAround(pos.x, pos.y,1,1,1);
 		this.queueConstruction(pos, "tower");
 
 	}

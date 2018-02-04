@@ -10,7 +10,6 @@ module.exports = {
 		// 3.) Sources
 
 		let droppedEnergy = this.room.find(FIND_DROPPED_RESOURCES, {filter: energy => energy.energy > this.carryCapacity});
-
 		if(droppedEnergy.length) {
 			task.subtask = [
 				{name: "mini_move", action: "pickup", target_id: droppedEnergy[0].id}
@@ -20,7 +19,7 @@ module.exports = {
 			task.subtask = [
 				{name: "mini_move", action: "withdraw", target_id: this.room.storage.id, action_params: [RESOURCE_ENERGY]},
 			];
-		} else if(this.room.bestContainer && this.room.bestContainer.store.energy >= this.carryCapacity) {
+		} else if(this.room.bestContainer && this.room.bestContainer.store.energy >= Math.max(this.carryCapacity, 1000)) {
 			// Get energy from best container
 			task.subtask = [
 				{name: "mini_move", action: "withdraw", target_id: this.room.bestContainer.id, action_params: [RESOURCE_ENERGY]},
