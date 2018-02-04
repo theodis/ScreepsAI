@@ -53,13 +53,20 @@ Room.prototype.run = function() {
 		if(!spawn.spawning) {
 			let creeps = spawn.adjacentCreeps.filter(creep => creep.shouldRenew);
 			let min = 9999;
-			let creep = null;
-			creeps.forEach(creepi => {
-				if(creepi.ticksToLive < min){
-					creep = creepi;
-					min = creepi.ticksToLive;
+			let max = 0;
+			let mincreep = null;
+			let maxcreep = null;
+			creeps.forEach(creep => {
+				if(creep.ticksToLive < min) {
+					mincreep = creep;
+					min = creep.ticksToLive;
+				}
+				if(creep.ticksToLive > max) {
+					maxcreep = creep;
+					max = creep.ticksToLive;
 				}
 			});
+			let creep = mincreep ? (mincreep.ticksToLive < 200 ? mincreep : maxcreep) : null;
 			if(creep) spawn.renewCreep(creep);
 		}
 		handleTowers();
