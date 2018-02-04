@@ -29,7 +29,8 @@ Creep.prototype.getClaim = function() {
 Creep.prototype.revokeClaim = function() {
 	let claim = this.memory.claim;
 	if(claim) {
-		this.memory.claimContainerID = this.room.getClaimContainer(claim).id;
+		let claimContainer = this.room.getClaimContainer(claim);
+		if(claimContainer) this.memory.claimContainerID = claimContainer.id;
 		this.room.unclaimSourceMineSpot(claim);
 		delete this.memory.claim;
 	}
