@@ -11,7 +11,7 @@ module.exports = {
 
 		if(this.task) {
 			//Carry on
-		} else if(this.carry.energy === 0 && bestContainer && bestContainer.store.energy > Math.min(this.carryCapacity * 2, bestContainer.energyCapacity / 2)) {
+		} else if(this.carry.energy === 0 && bestContainer && bestContainer.store.energy > Math.min(this.carryCapacity * 2, bestContainer.storeCapacity / 2)) {
 			//Get some energy from best container
 			this.assignTask({name: "mini_move", action: "withdraw", target_id: bestContainer.id, action_params: [RESOURCE_ENERGY]});
 		} else if(this.carry.energy === 0 && storage) {
