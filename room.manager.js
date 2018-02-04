@@ -102,7 +102,7 @@ Room.prototype.handleSpawns = function() {
 	if(miners == 0 && carrys == 0 && workers < 8) {
 		name = "BasicWorker" + Game.time;
 		role = "worker"
-	} else if(miners < sourceCount + 1) {
+	} else if(miners < sourceCount) {
 		name = "Miner" + Game.time;
 		role = "miner"
 	} else if(carrys < sourceCount) {
