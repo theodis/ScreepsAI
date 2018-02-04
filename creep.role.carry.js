@@ -21,8 +21,8 @@ module.exports = {
 			//Find something to do with the energy
 
 			//Maybe fill a tower?
-			let tower = this.room.find(FIND_MY_STRUCTURES, {filter: struct => struct.structureType === "tower"}).find(tower => tower.energy < tower.energyCapacity - this.carry.energy);
-			let extensions = this.room.find(FIND_MY_STRUCTURES, {filter: struct => struct.structureType === "extension" && struct.energy < struct.energyCapacity});
+			let tower = this.room.towersToFill;
+			let extensions = this.room.extensionsToFill;
 			let mainSpawn = this.room.mainSpawn;
 
 			if(tower) {

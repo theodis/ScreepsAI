@@ -275,3 +275,20 @@ Object.defineProperty(Room.prototype, 'bestContainer', {
 	enumerable: false,
 	configurable: true
 });
+
+Object.defineProperty(Room.prototype, 'towersToFill', {
+	get: function() {
+		return this.find(FIND_MY_STRUCTURES, {filter: struct => struct.structureType === "tower"}).find(tower => tower.energy < tower.energyCapacity);
+	},
+	enumerable: false,
+	configurable: true
+});
+
+Object.defineProperty(Room.prototype, 'extensionsToFill', {
+	get: function() {
+		return this.find(FIND_MY_STRUCTURES, {filter: struct => struct.structureType === "extension" && struct.energy < struct.energyCapacity});
+	},
+	enumerable: false,
+	configurable: true
+});
+ 
