@@ -120,10 +120,8 @@ Room.prototype.isFreeSpot = function(x,y,width=1,height=1,radius=0) {
 	for(let tile of tiles) {
 		if(tile.type === "terrain" && tile.terrain !== "swamp" && tile.terrain !== "plain") { valid = false; break;}
 		if(tile.type === "flag") { valid = false; break;}
-		if(tile.type === "constructionSite" && inArea(tile.x,tile.y)) { valid = false; break;}
-		if(tile.type === "constructionSite" && inRadius(tile.x,tile.y) && tile.constructionSite.structureType !== "road") { valid = false; break;}
-		if(tile.type === "structure" && inArea(tile.x,tile.y)) { valid = false; break;}
-		if(tile.type === "structure" && inRadius(tile.x,tile.y) && tile.structure.structureType !== "road") { valid = false; break;}
+		if(tile.type === "constructionSite" && tile.constructionSite.structureType !== "road") { valid = false; break;}
+		if(tile.type === "structure" && tile.structure.structureType !== "road") { valid = false; break;}
 	}
 	return valid;
 }

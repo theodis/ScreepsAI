@@ -24,3 +24,8 @@ Room.prototype.resetClaims = function() {
 			claims[key][i] = i;
 	}
 };
+
+Room.prototype.forceSetupBuildQueue = function() {
+	this.memory.lastBuildQueueUpdate = null;
+	this.setUpBuildQueue();
+}
