@@ -9,10 +9,7 @@ require('structure.manager');
 
 module.exports.loop = function () {
 	//TODO clean up repair mess
-	if(!global.repairs) {
-		console.log("Global repairs initialized");
-		global.repairs = {};
-	}
+	if(!global.repairs) global.repairs = {};
 	for(let key in global.repairs) {
 		let target = Game.getObjectById(key);
 		if(target && target.hits >= (target.hitsFortify || target.hitsRepair))
