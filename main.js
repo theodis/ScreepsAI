@@ -13,7 +13,7 @@ module.exports.loop = function () {
 		global.repairs = {};
 	}
 	for(let key in global.repairs) {
-		let target = global.repairs[key];
+		let target = Game.getObjectById(key);
 		if(target && target.hits >= target.hitsRepair)
 			delete global.repairs[key];
 	}
