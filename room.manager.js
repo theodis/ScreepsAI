@@ -229,14 +229,6 @@ Object.defineProperty(Room.prototype, 'mine', {
 	configurable: true
 });
 
-Object.defineProperty(Room.prototype, 'repairTargetCount', {
-	get: function() {
-		return this.repairTargets.length;
-	},
-	enumerable: false,
-	configurable: true
-});
-
 //TODO Make sure not to fix enemy structures!
 Object.defineProperty(Room.prototype, 'repairTargets', {
 	get: function() {
@@ -246,25 +238,17 @@ Object.defineProperty(Room.prototype, 'repairTargets', {
 	configurable: true
 });
 
-Room.prototype.getRepairTarget = function(pos) {
-	let repairTargets = this.repairTargets;
-	if(!repairTargets.length) return null;
-	let ret = null;
-	if(pos) {
-		let min = 99999;
-
-		repairTargets.forEach(target => {
-			let dist = distance(pos,target);
-			if(dist < min) {
-				min = dist;
-				ret = target;
-			}
-		})
-	} else {
-		ret = repairTargets[0];
-	}
-	return ret;
-}
+Object.defineProperty(Room.prototype, 'fortifyTargets', {
+	get: function() {
+		return this.find(FIND_STRUCTURES, {filter: struct => {
+			return	!(struct.id in repairs) &&
+				(struct.structureType === STRUCTURE_WALL || struct.structureType === STRUCTURE_RAMPART) &&
+				struct.hits < struct.hitsFortify;
+		}});
+	},
+	enumerable: false,
+	configurable: true
+});
 
 Object.defineProperty(Room.prototype, 'bestContainer', {
 	get: function() {

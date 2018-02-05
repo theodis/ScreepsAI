@@ -7,3 +7,11 @@ Object.defineProperty(Structure.prototype, 'hitsRepair', {
 	enumerable: false,
 	configurable: true
 });
+
+Object.defineProperty(Structure.prototype, 'hitsFortify', {
+	get: function() {
+		return Math.min(CONTROLLER_LEVELS[Math.max(1,this.room.controller.level - 1)], this.hitsMax);
+	},
+	enumerable: false,
+	configurable: true
+});
