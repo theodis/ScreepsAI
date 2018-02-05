@@ -33,7 +33,7 @@ Creep.prototype.run = function() {
 }
 
 Creep.prototype.getClaim = function() {
-	if(!this.memory.claim) { this.memory.claim = this.room.claimSourceMineSpot(this.carryCapacity, this); }
+	if(!this.memory.claim) { this.memory.claim = this.room.claimSourceMineSpot(1, this); }
 	return this.memory.claim;
 }
 
