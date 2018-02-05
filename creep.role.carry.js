@@ -13,9 +13,11 @@ module.exports = {
 			//Carry on
 		} else if(this.carry.energy === 0 && bestContainer && bestContainer.store.energy > Math.min(this.carryCapacity * 2, bestContainer.storeCapacity / 2)) {
 			//Get some energy from best container
+			this.memory.energyFrom = "container";
 			this.assignTask({name: "mini_move", action: "withdraw", target_id: bestContainer.id, action_params: [RESOURCE_ENERGY]});
 		} else if(this.carry.energy === 0 && storage) {
 			//Get some energy from storage
+			this.memory.energyFrom = "storage";
 			this.assignTask({name: "mini_move", action: "withdraw", target_id: storage.id, action_params: [RESOURCE_ENERGY]});
 		} else if(this.carry.energy > 0){
 			//Find something to do with the energy
@@ -47,7 +49,7 @@ module.exports = {
 				this.assignTask({name: "mini_move", action: "transfer", target_id: extension.id, action_params: [RESOURCE_ENERGY]});
 			} else if(mainSpawn && mainSpawn.energy < mainSpawn.energyCapacity) {
 				this.assignTask({name: "mini_move", action: "transfer", target_id: mainSpawn.id, action_params: [RESOURCE_ENERGY]});
-			} else if(this.room.storage){
+			} else if(this.room.storage && this.memory.energyFrom !== "storage") {
 				//Drop off energy in storage
 				let target = this.room.storage;
 				if(this.room.mainSpawn.energy < this.room.mainSpawn.energyCapacity) target = this.room.mainSpawn;
