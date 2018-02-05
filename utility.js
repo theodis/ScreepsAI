@@ -30,7 +30,7 @@ global.getNearest = function(pos, targets) {
 }
 
 Object.defineProperty(global, 'lotsOfTime', {
-	get: function() { return Game.cpu.bucket >= 9000; },
+	get: function() { return Game.cpu.bucket >= 1000; },
 	enumerable: false,
 	configurable: true
 });

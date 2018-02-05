@@ -8,6 +8,10 @@ require('spawn.manager');
 require('structure.manager');
 
 module.exports.loop = function () {
+
+	//Keep bucket to a minimum of 100
+	if(Game.cpu.bucket < 100) return;
+
 	//TODO clean up repair mess
 	if(!global.repairs) global.repairs = {};
 	for(let key in global.repairs) {
