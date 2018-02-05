@@ -99,8 +99,7 @@ Room.prototype.handleSpawns = function() {
 
 	let containerCount = this.find(FIND_STRUCTURES, {filter: struct => struct.structureType === "container" }).length;
 
-	let maxWorkers = 0;
-	if(this.storage) maxWorkers = Math.max(Math.round(this.storage.store.energy / 50000), 2);
+	let maxWorkers = maxWorkers = Math.max(Math.round(this.storage.store.energy / 50000), 2);
 
 	let name = null;
 	let role = null;
