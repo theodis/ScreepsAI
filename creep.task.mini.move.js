@@ -16,7 +16,7 @@ module.exports = {
 				case "withdraw":
 					return target.store.energy === 0;
 				case "repair":
-					return target.hits === target.hitsMax;
+					return target.hits === target.hitsMax || (target.hitsFortify && target.hits >= target.hitsFortify);
 				case "transfer":
 					if(target.structureType) {
 						switch(target.structureType) {
