@@ -38,9 +38,6 @@ Room.prototype.run = function() {
 		if(constructionCount < Room.MAX_CONSTRUCTION_SITES) this.buildQueued(Room.MAX_CONSTRUCTION_SITES - constructionCount);
 	}.bind(this);
 
-	const planning = function() {
-	}.bind(this);
-
 	const handleTowers = function() {
 		let towers = this.find(FIND_MY_STRUCTURES, {filter: struct => struct.structureType === "tower"});
 		if(towers.length === 0) return;
@@ -72,8 +69,6 @@ Room.prototype.run = function() {
 			if(creep) spawn.renewCreep(creep);
 		}
 		handleTowers();
-
-		this.setUpBuildQueue();
 	}.bind(this);
 
 	if(!this.memory.initialized){
@@ -82,7 +77,7 @@ Room.prototype.run = function() {
 	}
 	while(this.memory.roomLevel < this.controller.level && global.lotsOfTime) levelUp(++this.memory.roomLevel);
 	if(global.lotsOfTime) maintenance();
-	if(global.lotsOfTime) planning();
+	if(global.lotsOfTime) this.setUpBuildQueue();
 	loop();
 
 }
