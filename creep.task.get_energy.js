@@ -14,7 +14,7 @@ module.exports = {
 			task.subtask = [
 				{name: "mini_move", action: "pickup", target_id: droppedEnergy[0].id}
 			];
-		} else if(this.room.storage && this.room.storage.store.energy >= this.carryCapacity) {
+		} else if(this.room.storage && this.room.storage.store.energy >= 10000 + this.carryCapacity) {
 			// Get energy from storage
 			task.subtask = [
 				{name: "mini_move", action: "withdraw", target_id: this.room.storage.id, action_params: [RESOURCE_ENERGY]},

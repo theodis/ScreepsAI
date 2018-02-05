@@ -36,6 +36,8 @@ module.exports = {
 			this.assignTask({name: "repair", target_id: getNearest(this, this.room.repairTargets).id });
 		} else if(this.room.buildTargets.length > 0) {
 			this.assignTask({name: "build", target_id: this.room.nearestBuildTarget(this.pos.x, this.pos.y).id });
+		} else if(this.room.storage && this.room.storage.store.energy < 10000) {
+			this.assignTask({name: "mini_move", action: "transfer", target_id: this.room.storage.id, action_params: [RESOURCE_ENERGY]});
 		} else if(this.room.fortifyTargets.length) {
 			this.assignTask({name: "repair", target_id: getNearest(this, this.room.fortifyTargets).id });
 		} else {
