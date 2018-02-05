@@ -1,3 +1,5 @@
+global.creepCost = function(loadout) { return loadout.reduce(((cost,part) => cost + BODYPART_COST[part]),0); }
+
 global.getCPUCost = function(f) {
 	let start = Game.cpu.getUsed();
 	f();

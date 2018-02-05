@@ -6,9 +6,22 @@ Creep.role = {
 
 Creep.roleBaseLoadout = {
 	carry: [MOVE, CARRY],
-	miner: [MOVE, CARRY, WORK],
+	miner: [MOVE, CARRY, WORK, WORK],
 	worker: [MOVE, CARRY, WORK, WORK],
 }
+
+Creep.roleBaseLoadoutCost = {}
+for(let role in Creep.roleBaseLoadout)
+	Creep.roleBaseLoadoutCost[role] = creepCost(Creep.roleBaseLoadout[role]);
+
+Creep.roleBestLoadout = {
+	carry: [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY],
+	miner: [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, WORK, WORK, WORK, WORK, WORK, WORK],
+}
+
+Creep.roleBestLoadoutCost = {}
+for(let role in Creep.roleBestLoadout)
+	Creep.roleBestLoadoutCost[role] = creepCost(Creep.roleBestLoadout[role]);
 
 Creep.roleLoadoutWeights = {
 	carry: {
@@ -16,14 +29,14 @@ Creep.roleLoadoutWeights = {
 		carry: 1,
 	},
 	miner: {
-		work: 5,
+		work: 2,
 		carry: 1,
-		move: 1.5,
+		move: 2,
 	},
 	worker: {
 		work: 1,
 		carry: 1,
-		move: 1.5
+		move: 2
 	},
 }
 
