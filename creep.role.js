@@ -16,7 +16,7 @@ for(let role in Creep.roleBaseLoadout)
 
 Creep.roleBestLoadout = {
 	carry: [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY],
-	miner: [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, WORK, WORK, WORK, WORK, WORK, WORK],
+	miner: [MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK],
 }
 
 Creep.roleBestLoadoutCost = {}
