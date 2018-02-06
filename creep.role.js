@@ -15,7 +15,7 @@ for(let role in Creep.roleBaseLoadout)
 	Creep.roleBaseLoadoutCost[role] = creepCost(Creep.roleBaseLoadout[role]);
 
 Creep.roleBestLoadout = {
-	carry: [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY],
+	carry: [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY],
 	miner: [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, WORK, WORK, WORK, WORK, WORK, WORK],
 }
 
@@ -26,21 +26,22 @@ for(let role in Creep.roleBestLoadout)
 Creep.roleLoadoutWeights = {
 	carry: {
 		move: 1,
-		carry: 1,
+		carry: 2,
 	},
 	miner: {
-		work: 2,
+		move: 1,
 		carry: 1,
-		move: 2,
+		work: 2,
 	},
 	worker: {
-		work: 1,
+		move: 1,
 		carry: 1,
-		move: 2
+		work: 1,
 	},
 }
 
 Creep.getRoleLoadout = function(role, cost) {
+	if(Creep.roleBestLoadoutCost[role] && cost <= Creep.roleBestLoadoutCost[role]) return Creep.roleBestLoadout[role];
 	return Creep.getLoadOut(cost, Creep.roleLoadoutWeights[role], Creep.roleBaseLoadout[role]);
 }
 
