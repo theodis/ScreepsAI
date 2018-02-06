@@ -43,6 +43,10 @@ Room.prototype.run = function() {
 		if(towers.length === 0) return;
 		let enemies = this.find(FIND_HOSTILE_CREEPS);
 		if(enemies.length) towers.forEach(tower => tower.attack(enemies[0]));
+		else {
+			let creeps = this.find(FIND_MY_CREEPS,{filter:creep => creep.hits < creep.hitsMax});
+			if(creeps.length) towers.forEach(tower => tower.heal(creeps[0]));
+		}
 	}.bind(this);
 
 	const loop = function() {
