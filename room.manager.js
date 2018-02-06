@@ -86,6 +86,20 @@ Room.prototype.run = function() {
 
 }
 
+Object.defineProperty(Room.prototype, 'maxWorkers', {
+	get: function() {
+		let extensionClusters = Math.floor(this.extensions.length/4);
+		let maxWorkers = 0;
+		if(this.storage)
+			maxWorkers = Math.max(Math.round(this.storage.store.energy / 50000), 2);
+		else
+			maxWorkers = Math.max(this.sourceMineSpotCount - extensionClusters / 2, 2);
+		return maxWorkers;
+	},
+	enumerable: false,
+	configurable: true
+});
+
 Room.prototype.handleSpawns = function() {
 	//Initially build one worker per source spot until miner creeps
 	//When 2 containers are built, build one extentionless miner screep per source
@@ -101,29 +115,19 @@ Room.prototype.handleSpawns = function() {
 	if(this.energyAvailable < 300 || ((carrys > 0 || workers > 0) && this.energyAvailable < this.energyCapacityAvailable )) return;
 	let sourceCount = this.find(FIND_SOURCES).length;
 	let containerCount = this.find(FIND_STRUCTURES, {filter: struct => struct.structureType === "container" }).length;
-	let extensionClusters = Math.floor(this.extensions.length/4);
 
-	let maxWorkers = 0;
-	if(this.storage)
-		maxWorkers = Math.max(Math.round(this.storage.store.energy / 50000), 2);
-	else
-		maxWorkers = Math.max(this.sourceMineSpotCount - extensionClusters / 2, 2);
-
-	let name = null;
 	let role = null;
 
-	if(workers < maxWorkers) {
-		name = "Worker" + Game.time;
+	if(workers < this.maxWorkers) {
 		role = "worker"
 	} else if(containerCount == sourceCount && miners < sourceCount) {
-		name = "Miner" + Game.time;
 		role = "miner"
 	} else if(this.storage && carrys < 2) {
-		name = "Carry" + Game.time;
 		role = "carry";
 	}
 
-	if(name) {
+	if(role) {
+		let name = role + Game.time;
 		let loadout = Creep.getRoleLoadout(role, this.energyAvailable);
 		let buyCost = creepCost(loadout);
 		this.mainSpawn.spawnCreep(loadout,name,{memory: {role, buyCost} });
