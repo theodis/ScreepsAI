@@ -41,7 +41,7 @@ Creep.roleLoadoutWeights = {
 }
 
 Creep.getRoleLoadout = function(role, cost) {
-	if(Creep.roleBestLoadoutCost[role] && cost <= Creep.roleBestLoadoutCost[role]) return Creep.roleBestLoadout[role];
+	if(Creep.roleBestLoadoutCost[role] && Creep.roleBestLoadoutCost[role] <= cost) return Creep.roleBestLoadout[role];
 	return Creep.getLoadOut(cost, Creep.roleLoadoutWeights[role], Creep.roleBaseLoadout[role]);
 }
 

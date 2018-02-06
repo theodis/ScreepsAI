@@ -81,7 +81,7 @@ Creep.getLoadOut = function(cost, weights, baseLoadout = []) {
 }
 
 Object.defineProperty(Creep.prototype, 'worthKeeping', {
-	get: function() { return this.memory.energyAvailable > 300 && this.memory.energyAvailable >= this.room.energyCapacityAvailable * 0.8; },
+	get: function() { return this.memory.buyCost === Creep.roleBestLoadoutCost[this.memory.role] || this.memory.buyCost >= this.room.energyCapacityAvailable * 0.8; },
 	enumerable: false,
 	configurable: true
 });
