@@ -1,3 +1,3 @@
 If number of workers greater than max workers by 2 let one worker die off
 Roads from storage to containers and controller should be 3 wide
-
+Use flags to reserve build location for incomplete blocks
