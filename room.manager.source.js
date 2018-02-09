@@ -17,6 +17,8 @@ Room.prototype.peekClaimSourceMineSpot = function(minEnergy = 1, creep) {
 			let score = basescore;
 			let creeps = this.lookForAt(LOOK_CREEPS, spot[ind].x, spot[ind].y);
 			if(creeps.length && creeps[0] !== creep) continue;
+			//FIXME bad hack
+			spot[ind]["roomName"] = this.name;
 			if(creep) score -= distance(spot[ind], creep) * 100;
 			if(source.energy >= minEnergy && score > max && claims[id].length) {
 				max = score;
@@ -71,7 +73,7 @@ Object.defineProperty(Room.prototype, 'sourceMineSpots', {
 				tiles.forEach(tile => {
 					if(tile.type == "terrain" && (tile.terrain == "swamp" || tile.terrain == "plain")) {
 						claims[source.id].push(spots[source.id].length);
-						spots[source.id].push({x:tile.x, y:tile.y});
+						spots[source.id].push({x:tile.x, y:tile.y, roomName: this.name});
 					}
 				});
 			});
