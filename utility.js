@@ -12,7 +12,7 @@ global.distance = function(a,b) {
 
 	if(pos_a.room === pos_b.room)
 		return Math.max(Math.abs(pos_a.x - pos_b.x), Math.abs(pos_a.y - pos_b.y));
-	return 9999 // TODO generate better cross room distance values
+	return Game.map.findRoute(a.room, b.room).length * 50;
 }
 
 global.getNearest = function(pos, targets) {
