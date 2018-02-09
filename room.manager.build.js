@@ -178,11 +178,11 @@ Room.prototype.nearestBuildTarget = function(x,y) {
 Object.defineProperty(Room.prototype, 'buildingCount', {
 	get: function() {
 		let ret = {}
-		this.find(FIND_MY_CONSTRUCTION_SITES).forEach(site => {
+		this.find(FIND_CONSTRUCTION_SITES).forEach(site => {
 			if(!ret[site.structureType]) ret[site.structureType] = 0;
 			ret[site.structureType]++;
 		});
-		this.find(FIND_MY_STRUCTURES).forEach(site => {
+		this.find(FIND_STRUCTURES).forEach(site => {
 			if(!ret[site.structureType]) ret[site.structureType] = 0;
 			ret[site.structureType]++;
 		});
