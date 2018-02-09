@@ -37,7 +37,7 @@ module.exports = {
 
 		let action_params = task.action_params || [];
 		if(task.target_id) target = Game.getObjectById(task.target_id);
-		if(target) pos = target.pos; else pos = task;
+		if(target) pos = target.pos; else pos = new RoomPosition(task.x,task.y,task.room);
 
 		//If the action can be done then it's close enough
 		if(target && task.action){
@@ -52,7 +52,7 @@ module.exports = {
 
 		//Otherwise move to target
 		let result = null
-		result = this.moveTo(pos.x, pos.y, {visualizePathStyle: {stroke: '#ffffff'}});
+		result = this.moveTo(pos, {visualizePathStyle: {stroke: '#ffffff'}});
 		task.last_result = result;
 		if(result === ERR_NO_PATH || result === ERR_NO_BODYPART || result == ERR_INVALID_TARGET) return "fail";
 		return "continue;"

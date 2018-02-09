@@ -3,7 +3,7 @@ module.exports = {
 		let mineSpot = this.getClaim();
 		if(!mineSpot) return false;
 		task.subtask = [
-			{name: "mini_move", x: mineSpot.x, y: mineSpot.y},
+			{name: "mini_move", x: mineSpot.x, y: mineSpot.y, room: mineSpot.room},
 			{name: "mini_mine", target_id: mineSpot.id },
 		];
 
