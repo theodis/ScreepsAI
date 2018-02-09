@@ -1,6 +1,6 @@
 Memoize = {}
 
-Memoize.get = function(field, func, target, ttl = 1) {
+Memoize.get = function(field, func, target, ttl = 0) {
 	let key = "global";
 	if(!global.memo) global.memo = {};
 	if(!global.memo.ttl) global.memo.ttl = {};

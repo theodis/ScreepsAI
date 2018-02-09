@@ -374,32 +374,36 @@ Room.prototype.planWalls = function() {
 }
 
 Object.defineProperty(Room.prototype, 'exitGroups', {
-	get: function() {
-		function groupExits(positions, vertical) {
-			if(!positions.length) return [];
-			positions.sort((a,b) => vertical ? b.y - a.y : b.x - a.x);
-			ret = [];
-			curGroup = [];
-			while(positions.length) {
-				cur = positions.pop();
-				last = curGroup.length ? curGroup[curGroup.length-1] : null;
-				if(!last || (vertical ? cur.y === last.y + 1 : cur.x === last.x + 1))
-					curGroup.push(cur);
-				else {
-					ret.push(curGroup);
-					curGroup = [cur];
+	get: function () {
+		let exitGroups = () => {
+			function groupExits(positions, vertical) {
+				if(!positions.length) return [];
+				positions.sort((a,b) => vertical ? b.y - a.y : b.x - a.x);
+				ret = [];
+				curGroup = [];
+				while(positions.length) {
+					cur = positions.pop();
+					last = curGroup.length ? curGroup[curGroup.length-1] : null;
+					if(!last || (vertical ? cur.y === last.y + 1 : cur.x === last.x + 1))
+						curGroup.push(cur);
+					else {
+						ret.push(curGroup);
+						curGroup = [cur];
+					}
 				}
+				ret.push(curGroup);
+				return ret;
 			}
-			ret.push(curGroup);
-			return ret;
+
+			return [
+				...groupExits(this.find(FIND_EXIT_TOP, false)),
+				...groupExits(this.find(FIND_EXIT_BOTTOM), false),
+				...groupExits(this.find(FIND_EXIT_LEFT), true),
+				...groupExits(this.find(FIND_EXIT_RIGHT), true),
+			];
 		}
 
-		return [
-			...groupExits(this.find(FIND_EXIT_TOP, false)),
-			...groupExits(this.find(FIND_EXIT_BOTTOM), false),
-			...groupExits(this.find(FIND_EXIT_LEFT), true),
-			...groupExits(this.find(FIND_EXIT_RIGHT), true),
-		];
+		return Memoize.get("exitGroups", exitGroups, this, 1000000);
 	},
 	enumerable: false,
 	configurable: true
@@ -407,7 +411,7 @@ Object.defineProperty(Room.prototype, 'exitGroups', {
 
 Object.defineProperty(Room.prototype, 'exitRoadSpots', {
 	get: function() {
-		return this.exitGroups.map(group => {
+		let exitRoadSpots = () => this.exitGroups.map(group => {
 			let first = group[0];
 			let last = group[group.length-1];
 			let avgx = Math.round((first.x + last.x)/2);
@@ -433,6 +437,7 @@ Object.defineProperty(Room.prototype, 'exitRoadSpots', {
 			}
 			return new RoomPosition(avgx,avgy,this.name);
 		})
+		return Memoize.get("exitRoadSpots", exitRoadSpots, this, 1000000);
 	},
 	enumerable: false,
 	configurable: true

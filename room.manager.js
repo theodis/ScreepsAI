@@ -88,13 +88,16 @@ Room.prototype.run = function() {
 
 Object.defineProperty(Room.prototype, 'maxWorkers', {
 	get: function() {
-		let extensionClusters = Math.floor(this.extensions.length/4);
-		let maxWorkers = 0;
-		if(this.storage)
-			maxWorkers = Math.max(Math.round(this.storage.store.energy / 50000), 2);
-		else
-			maxWorkers = Math.max(this.sourceMineSpotCount - extensionClusters / 2, 2);
-		return maxWorkers;
+		let maxWorkers = () => {
+			let extensionClusters = Math.floor(this.extensions.length / 4);
+			let maxWorkers = 0;
+			if(this.storage)
+				maxWorkers = Math.max(Math.round(this.storage.store.energy / 50000), 2);
+			else
+				maxWorkers = Math.max(this.sourceMineSpotCount - extensionClusters / 2, 2);
+			return maxWorkers;
+		}
+		return Memoize.get("maxWorkers", maxWorkers, this, 10);
 	},
 	enumerable: false,
 	configurable: true
@@ -144,12 +147,15 @@ Room.prototype.findTypes = function(types, opts) {
 
 Object.defineProperty(Room.prototype, 'creepsByRole', {
 	get: function() {
-		let ret = {};
-		this.creeps.forEach(creep => {
-			if(!ret[creep.role]) ret[creep.role] = [];
-			ret[creep.role].push(creep);
-		});
-		return ret;
+		let creepsByRole = () => {
+			let ret = {};
+			this.creeps.forEach(creep => {
+				if(!ret[creep.role]) ret[creep.role] = [];
+				ret[creep.role].push(creep);
+			});
+			return ret;
+		}
+		return Memoize.get("creepsByRole", creepsByRole, this);
 	},
 	enumerable: false,
 	configurable: true
@@ -236,7 +242,8 @@ Object.defineProperty(Room.prototype, 'mine', {
 //TODO Make sure not to fix enemy structures!
 Object.defineProperty(Room.prototype, 'repairTargets', {
 	get: function() {
-		return this.find(FIND_STRUCTURES, {filter: struct => struct.hits < struct.hitsRepair });
+		let repairTargets = () => this.find(FIND_STRUCTURES, {filter: struct => struct.hits < struct.hitsRepair });
+		return Memoize.get("repairTargets", repairTargets, this, 10);
 	},
 	enumerable: false,
 	configurable: true
@@ -244,10 +251,11 @@ Object.defineProperty(Room.prototype, 'repairTargets', {
 
 Object.defineProperty(Room.prototype, 'fortifyTargets', {
 	get: function() {
-		return this.find(FIND_STRUCTURES, {filter: struct => {
+		let fortifyTargets = () => this.find(FIND_STRUCTURES, {filter: struct => {
 			return	(struct.structureType === STRUCTURE_WALL || struct.structureType === STRUCTURE_RAMPART) &&
 				struct.hits < struct.hitsFortify;
 		}});
+		return Memoize.get("fortifyTargets", fortifyTargets, this, 10);
 	},
 	enumerable: false,
 	configurable: true
@@ -255,15 +263,18 @@ Object.defineProperty(Room.prototype, 'fortifyTargets', {
 
 Object.defineProperty(Room.prototype, 'bestContainer', {
 	get: function() {
-		let max = 199;
-		let best = null;
-		this.find(FIND_STRUCTURES, {filter: struct => struct.structureType === "container" }).forEach(container => {
-			if(container.store.energy > max) {
-				max = container.store.energy;
-				best = container;
-			}
-		});
-		return best;
+		let bestContainer = () => {
+			let max = 199;
+			let best = null;
+			this.find(FIND_STRUCTURES, {filter: struct => struct.structureType === "container" }).forEach(container => {
+				if(container.store.energy > max) {
+					max = container.store.energy;
+					best = container;
+				}
+			});
+			return best;
+		}
+		return Memoize.get("bestContainer", bestContainer, this);
 	},
 	enumerable: false,
 	configurable: true
@@ -271,7 +282,8 @@ Object.defineProperty(Room.prototype, 'bestContainer', {
 
 Object.defineProperty(Room.prototype, 'towersToFill', {
 	get: function() {
-		return this.find(FIND_MY_STRUCTURES, {filter: struct => struct.structureType === "tower"}).find(tower => tower.energy < tower.energyCapacity);
+		let towersToFill = () => this.find(FIND_MY_STRUCTURES, {filter: struct => struct.structureType === "tower"}).find(tower => tower.energy < tower.energyCapacity);
+		return Memoize.get("towersToFill", towersToFill, this);
 	},
 	enumerable: false,
 	configurable: true
@@ -279,7 +291,8 @@ Object.defineProperty(Room.prototype, 'towersToFill', {
 
 Object.defineProperty(Room.prototype, 'extensions', {
 	get: function() {
-		return this.find(FIND_MY_STRUCTURES, {filter: struct => struct.structureType === "extension" });
+		let extensions = () => this.find(FIND_MY_STRUCTURES, {filter: struct => struct.structureType === "extension" });
+		return Memoize.get("extensions", extensions, this, 10);
 	},
 	enumerable: false,
 	configurable: true
@@ -287,7 +300,8 @@ Object.defineProperty(Room.prototype, 'extensions', {
 
 Object.defineProperty(Room.prototype, 'extensionsToFill', {
 	get: function() {
-		return this.find(FIND_MY_STRUCTURES, {filter: struct => struct.structureType === "extension" && struct.energy < struct.energyCapacity});
+		let extensionsToFill = () => this.extensions.filter(struct => struct.structureType === "extension" && struct.energy < struct.energyCapacity);
+		return Memoize.get("extensionsToFill", extensionsToFill, this);
 	},
 	enumerable: false,
 	configurable: true
