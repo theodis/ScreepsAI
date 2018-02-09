@@ -28,7 +28,7 @@ Room.prototype.peekClaimSourceMineSpot = function(minEnergy = 1, creep) {
 
 	if(maxId) {
 		let pos = spots[maxId][maxInd];
-		return { id: maxId, ind: maxInd, x: pos.x, y: pos.y, room: this.name }
+		return { id: maxId, ind: maxInd, x: pos.x, y: pos.y, roomName: this.name }
 	} else {
 		return null;
 	}
@@ -45,8 +45,8 @@ Room.prototype.claimSourceMineSpot = function(minEnergy = 1, creep) {
 }
 
 Room.prototype.unclaimSourceMineSpot = function(ret) {
-	if(ret.room !== this.name) {
-		Game.rooms[ret.room].unclaimSourceMineSpot(ret);
+	if(ret.roomName !== this.name && ret.roomName in Game.rooms) {
+		Game.rooms[ret.roomName].unclaimSourceMineSpot(ret);
 		return;
 	}
 	let spots = this.sourceMineSpots;

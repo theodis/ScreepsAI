@@ -40,7 +40,7 @@ module.exports = {
 			target = Game.getObjectById(task.target_id);
 			if(!target) return "fail";
 		}
-		if(target) pos = target.pos; else pos = new RoomPosition(task.x,task.y,task.room);
+		if(target) pos = target.pos; else pos = new RoomPosition(task.x,task.y,task.roomName);
 
 		//If the action can be done then it's close enough
 		if(target && task.action){

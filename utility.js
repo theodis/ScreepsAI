@@ -10,9 +10,9 @@ global.distance = function(a,b) {
 	let pos_a = a.pos || a;
 	let pos_b = b.pos || b;
 
-	if(pos_a.room === pos_b.room)
+	if(pos_a.roomName === pos_b.roomName)
 		return Math.max(Math.abs(pos_a.x - pos_b.x), Math.abs(pos_a.y - pos_b.y));
-	return Game.map.findRoute(a.room, b.room).length * 50;
+	return Game.map.findRoute(a.roomName, b.roomName).length * 50;
 }
 
 global.getNearest = function(pos, targets) {
