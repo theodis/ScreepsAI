@@ -10,9 +10,14 @@ Room.HEIGHT = 50;
 
 Room.prototype.run = function() {
 	this.updateVisited();
+	this.basicScoutInfo();
 	if(this.mine) this.runMyRoom();
 	else if(this.enemyStructures.length === 0) this.runNeutralRoom();
 	else this.runEnemyRoom();
+}
+
+Room.prototype.basicScoutInfo = function() {
+	if(!this.memory.sourceCount) this.memory.sourceCount = this.sourceCount;
 }
 
 Room.prototype.updateVisited = function() {

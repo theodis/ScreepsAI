@@ -127,14 +127,13 @@ Room.prototype.handleSpawns = function() {
 	let carrys = creepsByRole["carry"] ? creepsByRole["carry"].length : 0;
 
 	if(this.energyAvailable < 300 || ((carrys > 0 || workers > 0) && this.energyAvailable < this.energyCapacityAvailable )) return;
-	let sourceCount = this.find(FIND_SOURCES).length;
 	let containerCount = this.find(FIND_STRUCTURES, {filter: struct => struct.structureType === "container" }).length;
 
 	let role = null;
 
 	if(workers < Math.max(this.minWorkers, this.maxWorkers)) {
 		role = "worker"
-	} else if(containerCount == sourceCount && miners < sourceCount) {
+	} else if(containerCount == this.sourceCount && miners < this.sourceCount) {
 		role = "miner"
 	} else if(this.storage && carrys < 2) {
 		role = "carry";
