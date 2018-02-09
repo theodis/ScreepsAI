@@ -28,7 +28,7 @@ Room.prototype.queueConstruction = function(pos, type) {
 	}
 }
 
-Room.prototype.buildRoad = function(from, to) {
+Room.prototype.buildRoad = function(from, to, thickness = 0) {
 	const costCallback = (rn, cm) => {
 		let newCM = cm.clone();
 
@@ -58,8 +58,10 @@ Room.prototype.buildRoad = function(from, to) {
 
 	if(typeof from !== "RoomPosition") from = new RoomPosition(from.x, from.y, this.name);
 	let path = from.findPathTo(to, {ignoreCreeps: true, costCallback});
-	for(let pos of path)
+	for(let pos of path) {
 		this.queueConstruction({x: pos.x, y: pos.y}, STRUCTURE_ROAD);
+		if(thickness) this.buildRoadAround(pos.x, pos.y,1,1,thickness);
+	}
 }
 
 Room.prototype.buildRoadAround = function(x,y,width=1,height=1,radius=1) {
@@ -254,7 +256,7 @@ Room.prototype.setUpBuildQueue = function() {
 	Object.keys(spots).forEach(key => {
 		let pos = spots[key];
 		let roomPos = new RoomPosition(pos.x,pos.y,this.name);
-		this.buildRoad(roomPos, storageSpot);
+		this.buildRoad(roomPos, storageSpot, this.storage ? 1 : 0);
 	});
 
 	//Road from storage to main spawn
@@ -276,7 +278,7 @@ Room.prototype.setUpBuildQueue = function() {
 	if(remaining[STRUCTURE_STORAGE]) this.queueConstruction(storageSpot, STRUCTURE_STORAGE);
 
 	//Build road from storage to controller
-	this.buildRoad(storageSpot, this.controller.pos);
+	this.buildRoad(storageSpot, this.controller.pos, this.storage ? 1 : 0);
 
 	//Build as many towers with roads as possible
 	for(let i = 0; i < remaining[STRUCTURE_TOWER]; i++) {
