@@ -2,7 +2,7 @@ require('creep.role');
 require('creep.task');
 
 Creep.prototype.run = function() {
-	if(this.ticksToLive <= 200 && this.worthKeeping) {
+	if(this.ticksToLive <= this.ticksToLiveRenew && this.worthKeeping) {
 		this.drop("energy");
 		this.assignTask({name: "renew"});
 	}
@@ -85,6 +85,14 @@ Object.defineProperty(Creep.prototype, 'worthKeeping', {
 Object.defineProperty(Creep.prototype, 'shouldRenew', {
 	get: function() {
 		return this.worthKeeping && this.memory.role !== "claim" && this.ticksToLive <= 1500 - Math.floor(600/this.body.length);
+	},
+	enumerable: false,
+	configurable: true
+});
+
+Object.defineProperty(Creep.prototype, 'ticksToLiveRenew', {
+	get: function() {
+		return 100;
 	},
 	enumerable: false,
 	configurable: true
