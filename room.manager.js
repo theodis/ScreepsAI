@@ -9,10 +9,36 @@ Room.WIDTH = 50;
 Room.HEIGHT = 50;
 
 Room.prototype.run = function() {
+	this.updateVisited();
 	if(this.mine) this.runMyRoom();
 	else if(this.enemyStructures.length === 0) this.runNeutralRoom();
 	else this.runEnemyRoom();
 }
+
+Room.prototype.updateVisited = function() {
+	//Update last visited time
+	Empire.lastVisited[this.name] = Game.time;
+
+	//Clear unvisited flag if necessary
+	if(this.name in Empire.unvisited) delete Empire.unvisited[this.name];
+
+	//Update unvitied
+	this.exits.forEach(exit => {
+		if(!(exit in Empire.lastVisited)) Empire.unvisited[exit] = true;
+	});
+}
+
+Object.defineProperty(Room.prototype, 'exits', {
+	get: function() {
+		let exits = () => {
+			let exits = Game.map.describeExits(this.name);
+			return Object.keys(exits).map(dir => exits[dir]);
+		}
+		return Memoize.get("exits", exits, this, 1000000);
+	},
+	enumerable: false,
+	configurable: true
+});
 
 Room.prototype.findTypes = function(types, opts) {
 	let ret = [];

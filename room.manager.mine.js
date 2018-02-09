@@ -1,4 +1,6 @@
 Room.prototype.runMyRoom = function() {
+	this.memory.type = "mine";
+
 	const spawn = this.mainSpawn;
 
 	const init = function() {
