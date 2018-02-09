@@ -86,15 +86,31 @@ Room.prototype.run = function() {
 
 }
 
+Object.defineProperty(Room.prototype, 'workerCount', {
+	get: function() {
+		return this.creepsByRole["worker"] ? this.creepsByRole["worker"].length : 0;
+	},
+	enumerable: false,
+	configurable: true
+});
+
+Object.defineProperty(Room.prototype, 'minWorkers', {
+	get: function() {
+		return 2;
+	},
+	enumerable: false,
+	configurable: true
+});
+
 Object.defineProperty(Room.prototype, 'maxWorkers', {
 	get: function() {
 		let maxWorkers = () => {
 			let extensionClusters = Math.floor(this.extensions.length / 4);
 			let maxWorkers = 0;
 			if(this.storage)
-				maxWorkers = Math.max(Math.round(this.storage.store.energy / 50000), 2);
+				maxWorkers = Math.round(this.storage.store.energy / 50000);
 			else
-				maxWorkers = Math.max(this.sourceMineSpotCount - extensionClusters / 2, 2);
+				maxWorkers = Math.max(this.sourceMineSpotCount - extensionClusters / 2, this.minWorkers);
 			return maxWorkers;
 		}
 		return Memoize.get("maxWorkers", maxWorkers, this, 10);
@@ -121,7 +137,7 @@ Room.prototype.handleSpawns = function() {
 
 	let role = null;
 
-	if(workers < this.maxWorkers) {
+	if(workers < Math.max(this.minWorkers, this.maxWorkers)) {
 		role = "worker"
 	} else if(containerCount == sourceCount && miners < sourceCount) {
 		role = "miner"

@@ -71,8 +71,11 @@ Creep.getLoadOut = function(cost, weights, baseLoadout = []) {
 
 Object.defineProperty(Creep.prototype, 'worthKeeping', {
 	get: function() {
-		return Memoize.get("worthKeeping", () =>
-			this.memory.buyCost === Creep.roleBestLoadoutCost[this.memory.role] || this.memory.buyCost >= this.room.energyCapacityAvailable * 0.8
+		return Memoize.get("worthKeeping", () => {
+				if(this.role === "worker" && this.room.workerCount > this.room.maxWorkers + 1 && this.room.workerCount > this.room.minWorkers)
+					return false;
+				return this.memory.buyCost === Creep.roleBestLoadoutCost[this.memory.role] || this.memory.buyCost >= this.room.energyCapacityAvailable * 0.8
+			}
 		, this, 100);
 	},
 	enumerable: false,
