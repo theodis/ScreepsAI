@@ -36,7 +36,10 @@ module.exports = {
 		let min_dist = task.min_dist || 0;
 
 		let action_params = task.action_params || [];
-		if(task.target_id) target = Game.getObjectById(task.target_id);
+		if(task.target_id) {
+			target = Game.getObjectById(task.target_id);
+			if(!target) return "fail";
+		}
 		if(target) pos = target.pos; else pos = new RoomPosition(task.x,task.y,task.room);
 
 		//If the action can be done then it's close enough

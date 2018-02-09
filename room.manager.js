@@ -6,6 +6,20 @@ Room.WIDTH = 50;
 Room.HEIGHT = 50;
 
 Room.prototype.run = function() {
+	if(this.mine) this.runMyRoom();
+	else if(this.enemyStructures.length === 0) this.runNeutralRoom();
+	else this.runEnemyRoom();
+}
+
+Room.prototype.runEnemyRoom = function() {
+
+}
+
+Room.prototype.runNeutralRoom = function() {
+
+}
+
+Room.prototype.runMyRoom = function() {
 	const spawn = this.mainSpawn;
 
 	const init = function() {
@@ -240,7 +254,7 @@ Object.defineProperty(Room.prototype, 'sourceContainerSpots', {
 Object.defineProperty(Room.prototype, 'mainSpawn', {
 	get: function() {
 		if(!this.memory.mainSpawnID) {
-			let mainSpawn = this.find(FIND_MY_SPAWNS, {filter: spawn => spawn.name === `MainSpawn:${this.name}`})[0];
+			let mainSpawn = this.find(FIND_MY_SPAWNS)[0];
 			if(mainSpawn) this.memory.mainSpawnID = mainSpawn.id;
 		}
 		return Game.getObjectById(this.memory.mainSpawnID);
@@ -251,6 +265,14 @@ Object.defineProperty(Room.prototype, 'mainSpawn', {
 
 Object.defineProperty(Room.prototype, 'mine', {
 	get: function() { return this.controller.owner.username === global.username },
+	enumerable: false,
+	configurable: true
+});
+
+Object.defineProperty(Room.prototype, 'enemyStructures', {
+	get: function() {
+		return Memoize.get("enemyStructure", () => this.find(FIND_HOSTILE_STRUCTURES), this, 100);
+	},
 	enumerable: false,
 	configurable: true
 });
