@@ -37,9 +37,19 @@ Creep.prototype.revokeClaim = function() {
 }
 
 Creep.getLoadOut = function(cost, weights, baseLoadout = []) {
-	var weightsum = {}
-	var ret = []
-	var totalcost = 0;
+	const sortOrder = {
+		tough: 1,
+		work: 2,
+		attack: 3,
+		ranged_attack: 4,
+		heal: 5,
+		claim: 6,
+		carry: 7,
+		move: 8,
+	}
+	let weightsum = {}
+	let ret = []
+	let totalcost = 0;
 
 	function getNextPart() {
 		let min = 9999;
@@ -65,6 +75,9 @@ Creep.getLoadOut = function(cost, weights, baseLoadout = []) {
 	baseLoadout.forEach(addPart);
 
 	while(ret.length < 50 && (part = getNextPart())) if(!addPart(part)) delete weightsum[part];
+
+	//Sort parts
+	ret.sort((a,b) => sortOrder[a] - sortOrder[b]);
 
 	return ret;
 }

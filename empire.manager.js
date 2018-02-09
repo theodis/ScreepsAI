@@ -4,7 +4,29 @@ require('empire.manager.recycler');
 
 Empire.run = function() {
 	Empire.recycle();
+
+	let spawn = Empire.mainSpawn;
+	if(spawn.room.energyAvailable === spawn.room.energyCapacityAvailable) {
+		// Do empire spawns
+	}
 }
+
+Empire.creepCount = function(role) {
+	let count = 0;
+	for(let name in Game.creeps)
+		if(Game.creeps[name].role === role)
+			count ++;
+	return count;
+}
+
+
+Object.defineProperty(Empire, 'scoutCount', {
+	get: function() {
+		return Empire.creepCount("scout");
+	},
+	enumerable: false,
+	configurable: true
+});
 
 Empire.nearestSpawn = function(to) {
 	//Support room names for debugging

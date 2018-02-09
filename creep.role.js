@@ -1,12 +1,14 @@
 Creep.role = {
 	carry: require('creep.role.carry'),
 	miner: require('creep.role.miner'),
+	scout: require('creep.role.scout'),
 	worker: require('creep.role.worker'),
 }
 
 Creep.roleBaseLoadout = {
 	carry: [MOVE, CARRY],
 	miner: [MOVE, CARRY, WORK, WORK],
+	scout: [TOUGH, MOVE],
 	worker: [MOVE, CARRY, WORK, WORK],
 }
 
@@ -15,8 +17,8 @@ for(let role in Creep.roleBaseLoadout)
 	Creep.roleBaseLoadoutCost[role] = creepCost(Creep.roleBaseLoadout[role]);
 
 Creep.roleBestLoadout = {
-	carry: [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY],
-	miner: [MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK],
+	carry: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE],
+	miner: [WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK,CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE],
 }
 
 Creep.roleBestLoadoutCost = {}
@@ -33,6 +35,10 @@ Creep.roleLoadoutWeights = {
 		carry: 1,
 		work: 2,
 	},
+	scout: {
+		tough: 1,
+		move: 1,
+	},
 	worker: {
 		move: 1,
 		carry: 1,
@@ -41,6 +47,8 @@ Creep.roleLoadoutWeights = {
 }
 
 Creep.getRoleLoadout = function(role, cost) {
+	//Make sure scouts get even move and tough;
+	if(role === "scout") cost = Math.floor(cost / 60) * 60;
 	if(Creep.roleBestLoadoutCost[role] && Creep.roleBestLoadoutCost[role] <= cost) return Creep.roleBestLoadout[role];
 	return Creep.getLoadOut(cost, Creep.roleLoadoutWeights[role], Creep.roleBaseLoadout[role]);
 }
