@@ -236,7 +236,7 @@ Object.defineProperty(Room.prototype, 'mine', {
 //TODO Make sure not to fix enemy structures!
 Object.defineProperty(Room.prototype, 'repairTargets', {
 	get: function() {
-		return this.find(FIND_STRUCTURES, {filter: struct => !(struct.id in repairs) && struct.hits < struct.hitsRepair });
+		return this.find(FIND_STRUCTURES, {filter: struct => struct.hits < struct.hitsRepair });
 	},
 	enumerable: false,
 	configurable: true
@@ -245,8 +245,7 @@ Object.defineProperty(Room.prototype, 'repairTargets', {
 Object.defineProperty(Room.prototype, 'fortifyTargets', {
 	get: function() {
 		return this.find(FIND_STRUCTURES, {filter: struct => {
-			return	!(struct.id in repairs) &&
-				(struct.structureType === STRUCTURE_WALL || struct.structureType === STRUCTURE_RAMPART) &&
+			return	(struct.structureType === STRUCTURE_WALL || struct.structureType === STRUCTURE_RAMPART) &&
 				struct.hits < struct.hitsFortify;
 		}});
 	},
