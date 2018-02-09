@@ -1,0 +1,4 @@
+Room.prototype.runEnemyRoom = function() {
+
+}
+

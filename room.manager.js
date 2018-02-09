@@ -1,4 +1,6 @@
 require('room.manager.mine');
+require('room.manager.neutral');
+require('room.manager.enemy');
 require('room.manager.build');
 require('room.manager.debug');
 require('room.manager.source');
@@ -10,14 +12,6 @@ Room.prototype.run = function() {
 	if(this.mine) this.runMyRoom();
 	else if(this.enemyStructures.length === 0) this.runNeutralRoom();
 	else this.runEnemyRoom();
-}
-
-Room.prototype.runEnemyRoom = function() {
-
-}
-
-Room.prototype.runNeutralRoom = function() {
-
 }
 
 Room.prototype.findTypes = function(types, opts) {

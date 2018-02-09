@@ -271,3 +271,4 @@ Object.defineProperty(Room.prototype, 'extensionsToFill', {
 	enumerable: false,
 	configurable: true
 });
+
