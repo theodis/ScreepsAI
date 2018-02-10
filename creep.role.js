@@ -1,6 +1,7 @@
 Creep.role = {
 	carry: require('creep.role.carry'),
 	miner: require('creep.role.miner'),
+	reserver: require('creep.role.reserver'),
 	scout: require('creep.role.scout'),
 	worker: require('creep.role.worker'),
 }
@@ -8,6 +9,7 @@ Creep.role = {
 Creep.roleBaseLoadout = {
 	carry: [MOVE, CARRY],
 	miner: [MOVE, CARRY, WORK, WORK],
+	reserver: [MOVE, CLAIM],
 	scout: [TOUGH, MOVE],
 	worker: [MOVE, CARRY, WORK, WORK],
 }
@@ -31,6 +33,10 @@ Creep.roleLoadoutWeights = {
 		carry: 1,
 		work: 2,
 	},
+	reserver: {
+		move: 1,
+		claim: 1,
+	},
 	scout: {
 		tough: 1,
 		move: 1,
@@ -45,6 +51,7 @@ Creep.roleLoadoutWeights = {
 Creep.getRoleLoadout = function(role, cost) {
 	//Make sure scouts get even move and tough;
 	if(role === "scout") cost = Math.floor(cost / 60) * 60;
+	if(role === "reserver") cost = Math.floor(cost / 650) * 650;
 	if(Creep.roleBestLoadout[role] && (cost === 1000000 || cost >= Creep.roleBestLoadoutCost[role])) return Creep.roleBestLoadout[role];
 	return Creep.getLoadOut(cost, Creep.roleLoadoutWeights[role], Creep.roleBaseLoadout[role]);
 }

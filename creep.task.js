@@ -1,5 +1,6 @@
 Creep.task = {
 	get_energy: require('creep.task.get_energy'),
+	unload_energy: require('creep.task.unload_energy'),
 	mine: require('creep.task.mine'),
 	repair: require('creep.task.repair'),
 	build: require('creep.task.build'),
