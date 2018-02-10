@@ -149,3 +149,20 @@ Object.defineProperty(Empire, 'developingRoomCount', {
 	enumerable: false,
 	configurable: true
 });
+
+Object.defineProperty(Empire, 'cleanupRooms', {
+	get: function() {
+		const lastVisited = this.lastVisited;
+		let ret = [];
+
+		for(let name in lastVisited) {
+			let m = Memory.rooms[name];
+			if(m.enemyTowerCount === 0 && m.enemyAttackParts === 0 && m.enemyStructureCount > 0)
+				ret.push(name);
+		}
+
+		return ret;
+	},
+	enumerable: false,
+	configurable: true
+});
