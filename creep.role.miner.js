@@ -1,5 +1,6 @@
 module.exports = {
 	start: function() {
+		if(!this.memory.workRoom) this.memory.workRoom = this.room.name;
 		return true;
 	},
 	stop: function() {
@@ -14,6 +15,9 @@ module.exports = {
 
 		if(this.task) {
 			//Carry on
+		} else if(this.room.name != this.memory.workRoom) {
+			// Get to the right room
+			this.assignTask({name: "mini_move", x: 25, y: 25, roomName: this.memory.workRoom, min_dist: 49 });
 		} else if(this.carry.energy === 0) {
 			//Grab a claim if don't already have one
 			this.assignTask({name: "mine"});

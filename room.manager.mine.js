@@ -143,7 +143,8 @@ Room.prototype.handleSpawns = function() {
 		let name = role + Game.time;
 		let loadout = Creep.getRoleLoadout(role, this.energyAvailable);
 		let buyCost = creepCost(loadout);
-		this.mainSpawn.spawnCreep(loadout,name,{memory: {role, buyCost} });
+		let workRoom = this.name;
+		this.mainSpawn.spawnCreep(loadout,name,{memory: {role, buyCost, workRoom} });
 		console.log("Spawning", name);
 	}
 
