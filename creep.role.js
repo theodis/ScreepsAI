@@ -4,6 +4,7 @@ Creep.role = {
 	miner: require('creep.role.miner'),
 	reserver: require('creep.role.reserver'),
 	scout: require('creep.role.scout'),
+	reserveworker: require('creep.role.reserveworker'),
 	worker: require('creep.role.worker'),
 }
 
@@ -13,6 +14,7 @@ Creep.roleBaseLoadout = {
 	miner: [MOVE, CARRY, WORK, WORK],
 	reserver: [MOVE, CLAIM],
 	scout: [TOUGH, MOVE],
+	reserveworker: [MOVE, CARRY, WORK, WORK],
 	worker: [MOVE, CARRY, WORK, WORK],
 }
 
@@ -47,6 +49,11 @@ Creep.roleLoadoutWeights = {
 	scout: {
 		tough: 1,
 		move: 1,
+	},
+	reserveworker: {
+		move: 1,
+		carry: 1,
+		work: 1,
 	},
 	worker: {
 		move: 1,

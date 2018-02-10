@@ -17,6 +17,8 @@ Empire.run = function() {
 				role = "cleanup";
 			else if(Empire.getReserveRoom())
 				role = "reserver";
+			else if(Empire.getReserveWorkRoom())
+				role = "reserveworker";
 			if(role) {
 				const name = role + Game.time;
 				const loadout = Creep.getRoleLoadout(role, spawn.room.energyAvailable);
@@ -213,4 +215,10 @@ Empire.getReserveRoom = function() {
 	})
 
 	return best;
+}
+
+Empire.getReserveWorkRoom = function() {
+	let reserved = this.reservedRooms.filter(room => !Memory.rooms[room].reserveWorkerID)
+	if(!reserved.length) return null;
+	return reserved[0];
 }

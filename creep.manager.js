@@ -29,8 +29,6 @@ Creep.prototype.getClaim = function() {
 Creep.prototype.revokeClaim = function() {
 	let claim = this.memory.claim;
 	if(claim) {
-		let claimContainer = this.room.getClaimContainer(claim);
-		if(claimContainer) this.memory.claimContainerID = claimContainer.id;
 		this.room.unclaimSourceMineSpot(claim);
 		delete this.memory.claim;
 	}
@@ -88,7 +86,7 @@ Object.defineProperty(Creep.prototype, 'worthKeeping', {
 				if(this.role === "reserver") return false;
 				if(this.role === "worker" && this.room.workerCount > this.room.maxWorkers + 1 && this.room.workerCount > this.room.minWorkers)
 					return false;
-				return this.memory.buyCost === Creep.roleBestLoadoutCost[this.memory.role] || this.memory.buyCost >= this.room.energyCapacityAvailable * 0.8
+				return this.memory.buyCost === Creep.roleBestLoadoutCost[this.memory.role] || this.memory.buyCost >= Empire.mainSpawn.room.energyCapacityAvailable * 0.8
 			}
 		, this, 100);
 	},

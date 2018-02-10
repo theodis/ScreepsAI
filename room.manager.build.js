@@ -167,7 +167,7 @@ Room.prototype.nearestBuildTarget = function(x,y) {
 	let best = null;
 
 	targets.forEach(target => {
-		let dist = distance({x,y}, target);
+		let dist = distance({x,y,roomName: this.name}, target);
 		if(dist < min) {
 			min = dist;
 			best = target;

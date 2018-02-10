@@ -12,7 +12,9 @@ Empire.recycleCreepMemory = function() {
 
 			//Clear creep reservation claim
 			let reserveRoom = Memory.creeps[name].reserveRoom;
-			if(reserveRoom) delete Memory.rooms[reserveRoom].reserverID;
+			let role = Memory.creeps[name].role;
+			if(reserveRoom && role === "reserver") delete Memory.rooms[reserveRoom].reserverID;
+			if(reserveRoom && role === "reserveworker") delete Memory.rooms[reserveRoom].reserveWorkerID;
 
 			delete Memory.creeps[name];
 		}
