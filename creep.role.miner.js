@@ -23,11 +23,7 @@ module.exports = {
 			this.assignTask({name: "mine"});
 		} else {
 			//Drop off energy
-			let target = null;
-			if(this.memory.claimContainerID) target = Game.getObjectById(this.memory.claimContainerID);
-			if((!target || target.store.energy >= target.storeCapacity) && this.room.storage) target = this.room.storage;
-			if(!target) target = this.room.mainSpawn;
-			this.assignTask({name: "mini_move", action: "transfer", target_id: target.id, action_params: [RESOURCE_ENERGY]});
+			this.assignTask({name: "unload_energy", dest: "container|storage"});
 		}
 	},
 };
