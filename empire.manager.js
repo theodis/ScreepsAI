@@ -2,6 +2,8 @@ Empire = {};
 
 require('empire.manager.recycler');
 
+Empire.MAX_CLAIM_DISTANCE = 4;
+
 Empire.run = function() {
 	Empire.recycle();
 
@@ -100,6 +102,49 @@ Object.defineProperty(Empire, 'unvisited', {
 	get: function() {
 		if(!Empire.memory.unvisited) Empire.memory.unvisited = {}
 		return Empire.memory.unvisited;
+	},
+	enumerable: false,
+	configurable: true
+});
+
+Object.defineProperty(Empire, 'potentialReserves', {
+	get: function() {
+		const lastVisited = this.lastVisited;
+		let potential = [];
+
+		for(let name in lastVisited)
+			if(Memory.rooms[name].type === "neutral" && Memory.rooms[name].sourceCount)
+				potential.push(name);
+
+		let min = 0;
+		let ret = null;
+
+		potential.forEach(name => {
+			let dist = Empire.nearestSpawnDistance(name) + 2 - Memory.rooms[name].sourceCount;
+			if(!ret || dist < min) {
+				min = dist;
+				ret = [name];
+			} else if(dist === min) {
+				ret.push(name);
+			}
+		});
+
+		return ret;
+	},
+	enumerable: false,
+	configurable: true
+});
+
+Object.defineProperty(Empire, 'developingRoomCount', {
+	get: function() {
+		const lastVisited = this.lastVisited;
+		let count = 0;
+
+		for(let name in lastVisited)
+			if(Memory.rooms[name].developing)
+				count++;
+
+		return count;
 	},
 	enumerable: false,
 	configurable: true
