@@ -444,3 +444,17 @@ Object.defineProperty(Room.prototype, 'exitRoadSpots', {
 	enumerable: false,
 	configurable: true
 })
+
+Room.prototype.getExitRoadSpots = function(dir) {
+	switch(dir) {
+		case TOP:
+			return this.exitRoadSpots.filter(spot => spot.y === 1);
+		case RIGHT:
+			return this.exitRoadSpots.filter(spot => spot.x === 48);
+		case BOTTOM:
+			return this.exitRoadSpots.filter(spot => spot.y === 48);
+		case LEFT:
+			return this.exitRoadSpots.filter(spot => spot.x === 1);
+	}
+	return [];
+}
