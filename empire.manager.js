@@ -7,7 +7,13 @@ Empire.run = function() {
 
 	let spawn = Empire.mainSpawn;
 	if(spawn.room.energyAvailable === spawn.room.energyCapacityAvailable) {
-		// Do empire spawns
+		if(spawn.room.storage && Empire.scoutCount < 1) {
+			const role = "scout"
+			const name = role + Game.time;
+			const loadout = Creep.getRoleLoadout(role, spawn.room.energyAvailable);
+			const buyCost = creepCost(loadout);
+			spawn.spawnCreep(loadout,name,{memory: {role, buyCost} });
+		}
 	}
 }
 
@@ -29,9 +35,8 @@ Object.defineProperty(Empire, 'scoutCount', {
 });
 
 Empire.nearestSpawn = function(to) {
-	//Support room names for debugging
-	if(typeof to === "string") { to = new RoomPosition(25,25,to); }
-	to = to.pos || to;
+	if(!to) return null;
+	if(typeof to !== "string") return Empire.nearestSpawn(to.roomName || to.pos.roomName);
 
 	let nearestSpawn = () => {
 		let spawns = Object.keys(Game.rooms)
@@ -51,7 +56,14 @@ Empire.nearestSpawn = function(to) {
 		return best;
 	}
 
-	return nearestSpawn();
+	return Memoize.get("nearestSpawn:" + to, nearestSpawn, undefined, 1000);
+}
+
+Empire.nearestSpawnDistance = function(to) {
+	if(!to) return null;
+	if(typeof to !== "string") return Empire.nearestSpawnDistance(to.roomName || to.pos.roomName);
+
+	return Memoize.get("nearestSpawn:" + to, () => Game.map.findRoute(Empire.nearestSpawn(to).room, to).length, undefined, 1000);
 }
 
 Object.defineProperty(Empire, 'mainSpawn', {

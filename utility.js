@@ -12,9 +12,9 @@ global.distance = function(a,b) {
 
 	if(pos_a.roomName === pos_b.roomName)
 		return Math.max(Math.abs(pos_a.x - pos_b.x), Math.abs(pos_a.y - pos_b.y));
-	else if(pos_a.roomName && pos_b.roomName)
-		return Game.map.findRoute(a.roomName, b.roomName).length * 50;
-	else
+	else if(pos_a.roomName && pos_b.roomName) {
+		return Game.map.findRoute(pos_a.roomName, pos_b.roomName).length * 50;
+	} else
 		return 1000000;
 }
 

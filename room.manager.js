@@ -74,7 +74,7 @@ Object.defineProperty(Room.prototype, 'creeps', {
 });
 
 Object.defineProperty(Room.prototype, 'mine', {
-	get: function() { return this.controller.owner.username === global.username },
+	get: function() { return this.controller && this.controller.owner && this.controller.owner.username === global.username },
 	enumerable: false,
 	configurable: true
 });

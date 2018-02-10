@@ -2,7 +2,7 @@ module.exports = {
 	start: function(task) {
 		task.subtaskIndex = 0;
 		task.subtask = [
-			{name: "mini_move", target_id: this.room.mainSpawn.id , min_dist: 1},
+			{name: "mini_move", target_id: this.room.mainSpawn ? this.room.mainSpawn.id : Empire.mainSpawn.id , min_dist: 1},
 			{name: "mini_renew" },
 		]
 

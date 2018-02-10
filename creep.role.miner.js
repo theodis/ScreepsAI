@@ -20,7 +20,6 @@ module.exports = {
 		} else {
 			//Drop off energy
 			let target = null;
-			//console.log(claim, this.room.getClaimContainer(claim));
 			if(this.memory.claimContainerID) target = Game.getObjectById(this.memory.claimContainerID);
 			if((!target || target.store.energy >= target.storeCapacity) && this.room.storage) target = this.room.storage;
 			if(!target) target = this.room.mainSpawn;
