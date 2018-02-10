@@ -23,6 +23,7 @@ for(let role in Creep.roleBaseLoadout)
 Creep.roleBestLoadout = {
 	carry: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE],
 	miner: [WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK,CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE],
+	cleanup: [MOVE, ATTACK],
 }
 
 Creep.roleLoadoutWeights = {

@@ -1,4 +1,5 @@
 Creep.task = {
+	attack: require('creep.task.attack'),
 	get_energy: require('creep.task.get_energy'),
 	unload_energy: require('creep.task.unload_energy'),
 	mine: require('creep.task.mine'),
@@ -6,6 +7,7 @@ Creep.task = {
 	build: require('creep.task.build'),
 	upgrade: require('creep.task.upgrade'),
 	renew: require('creep.task.renew'),
+	mini_attack: require('creep.task.mini.attack'),
 	mini_mine: require('creep.task.mini.mine'),
 	mini_move: require('creep.task.mini.move'),
 	mini_repair: require('creep.task.mini.repair'),

@@ -9,12 +9,19 @@ Empire.run = function() {
 
 	let spawn = Empire.mainSpawn;
 	if(spawn.room.energyAvailable === spawn.room.energyCapacityAvailable) {
-		if(spawn.room.storage && Empire.scoutCount < 1) {
-			const role = "scout"
-			const name = role + Game.time;
-			const loadout = Creep.getRoleLoadout(role, spawn.room.energyAvailable);
-			const buyCost = creepCost(loadout);
-			spawn.spawnCreep(loadout,name,{memory: {role, buyCost} });
+		if(spawn.room.storage) {
+			let role = null;
+			if(Empire.scoutCount < 1)
+				role = "scout";
+			else if(Empire.cleanupCount < 1 && Empire.cleanupRooms.length)
+				role = "cleanup";
+
+			if(role) {
+				const name = role + Game.time;
+				const loadout = Creep.getRoleLoadout(role, spawn.room.energyAvailable);
+				const buyCost = creepCost(loadout);
+				spawn.spawnCreep(loadout,name,{memory: {role, buyCost} });
+			}
 		}
 	}
 }
@@ -31,6 +38,14 @@ Empire.creepCount = function(role) {
 Object.defineProperty(Empire, 'scoutCount', {
 	get: function() {
 		return Empire.creepCount("scout");
+	},
+	enumerable: false,
+	configurable: true
+});
+
+Object.defineProperty(Empire, 'cleanupCount', {
+	get: function() {
+		return Empire.creepCount("cleanup");
 	},
 	enumerable: false,
 	configurable: true
@@ -157,7 +172,7 @@ Object.defineProperty(Empire, 'cleanupRooms', {
 
 		for(let name in lastVisited) {
 			let m = Memory.rooms[name];
-			if(m.enemyTowerCount === 0 && m.enemyAttackParts === 0 && m.enemyStructureCount > 0 && !m.safeMode)
+			if(m.enemyTowerCount === 0 && m.enemyAttackParts === 0 && m.enemyStructureCount > 0 && !m.safeMode && m.sourceCount < 3)
 				ret.push(name);
 		}
 
