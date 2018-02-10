@@ -2,7 +2,7 @@ require('creep.role');
 require('creep.task');
 
 Creep.prototype.run = function() {
-	if((this.ticksToLive <= this.ticksToLiveRenew || this.hits < this.hitsMax * 0.75) && this.worthKeeping) {
+	if((this.ticksToLive <= this.ticksToLiveRenew || this.hits < this.hitsMax * 0.75)) {
 		this.drop("energy");
 		this.assignTask({name: "renew"});
 	}
@@ -85,6 +85,7 @@ Creep.getLoadOut = function(cost, weights, baseLoadout = []) {
 Object.defineProperty(Creep.prototype, 'worthKeeping', {
 	get: function() {
 		return Memoize.get("worthKeeping", () => {
+				if(this.role === "reserver") return false;
 				if(this.role === "worker" && this.room.workerCount > this.room.maxWorkers + 1 && this.room.workerCount > this.room.minWorkers)
 					return false;
 				return this.memory.buyCost === Creep.roleBestLoadoutCost[this.memory.role] || this.memory.buyCost >= this.room.energyCapacityAvailable * 0.8
@@ -97,7 +98,7 @@ Object.defineProperty(Creep.prototype, 'worthKeeping', {
 
 Object.defineProperty(Creep.prototype, 'shouldRenew', {
 	get: function() {
-		return this.worthKeeping && this.memory.role !== "claim" && this.ticksToLive <= 1500 - Math.floor(600/this.body.length);
+		return this.worthKeeping && this.memory.role !== "reserver" && this.ticksToLive <= 1500 - Math.floor(600/this.body.length);
 	},
 	enumerable: false,
 	configurable: true

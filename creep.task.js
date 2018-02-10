@@ -7,6 +7,7 @@ Creep.task = {
 	build: require('creep.task.build'),
 	upgrade: require('creep.task.upgrade'),
 	renew: require('creep.task.renew'),
+	reserve: require('creep.task.reserve'),
 	mini_attack: require('creep.task.mini.attack'),
 	mini_mine: require('creep.task.mini.mine'),
 	mini_move: require('creep.task.mini.move'),
@@ -14,6 +15,7 @@ Creep.task = {
 	mini_build: require('creep.task.mini.build'),
 	mini_upgrade: require('creep.task.mini.upgrade'),
 	mini_renew: require('creep.task.mini.renew'),
+	mini_reserve: require('creep.task.mini.reserve'),
 }
 
 Object.defineProperty(Creep.prototype, 'task', {

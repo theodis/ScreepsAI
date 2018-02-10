@@ -43,24 +43,3 @@ module.exports = {
 	},
 };
 
-/*
-
-Object.defineProperty(Empire, 'lastVisited', {
-	get: function() {
-		if(!Empire.memory.lastVisited) Empire.memory.lastVisited = {}
-		return Empire.memory.lastVisited;
-	},
-	enumerable: false,
-	configurable: true
-});
-
-Object.defineProperty(Empire, 'unvisited', {
-	get: function() {
-		if(!Empire.memory.unvisited) Empire.memory.unvisited = {}
-		return Empire.memory.unvisited;
-	},
-	enumerable: false,
-	configurable: true
-});
-
-*/

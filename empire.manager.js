@@ -8,20 +8,31 @@ Empire.run = function() {
 	Empire.recycle();
 
 	let spawn = Empire.mainSpawn;
-	if(spawn.room.energyAvailable === spawn.room.energyCapacityAvailable) {
+	if(!spawn.spawning && spawn.room.energyAvailable === spawn.room.energyCapacityAvailable) {
 		if(spawn.room.storage) {
 			let role = null;
 			if(Empire.scoutCount < 1)
 				role = "scout";
 			else if(Empire.cleanupCount < 1 && Empire.cleanupRooms.length)
 				role = "cleanup";
-
+			else if(Empire.getReserveRoom())
+				role = "reserver";
 			if(role) {
 				const name = role + Game.time;
 				const loadout = Creep.getRoleLoadout(role, spawn.room.energyAvailable);
 				const buyCost = creepCost(loadout);
 				spawn.spawnCreep(loadout,name,{memory: {role, buyCost} });
 			}
+		}
+	}
+
+	if(spawn.room.storage) {
+		if(!Empire.developingRoom && Empire.potentialReserves.length) {
+			// Pick a room and start reserve process
+			let room = Empire.potentialReserves[0];
+			Empire.developingRoom = room;
+			Empire.reservedRooms.push(room);
+			Memory.rooms[room].developing = true;
 		}
 	}
 }
@@ -73,7 +84,8 @@ Empire.nearestSpawn = function(to) {
 		return best;
 	}
 
-	return Memoize.get("nearestSpawn:" + to, nearestSpawn, undefined, 1000);
+	return nearestSpawn();
+	//return Game.getObjectById(Memoize.get("nearestSpawn:" + to, nearestSpawn, undefined, 1000).id);
 }
 
 Empire.nearestSpawnDistance = function(to) {
@@ -89,7 +101,7 @@ Object.defineProperty(Empire, 'mainSpawn', {
 					.map(key => Game.rooms[key])
 					.reduce((accumulator, currentValue) => accumulator === null ? currentValue : (currentValue === null ? accumulator : (currentValue.energyCapacityAvailable > accumulator.energyCapacityAvailable ? currentValue : accumulator)))
 					.mainSpawn;
-		return Memoize.get("mainSpawn", mainSpawn, undefined, 100);
+		return Game.getObjectById(Memoize.get("mainSpawn", mainSpawn, undefined, 100).id);
 	},
 	enumerable: false,
 	configurable: true
@@ -150,21 +162,6 @@ Object.defineProperty(Empire, 'potentialReserves', {
 	configurable: true
 });
 
-Object.defineProperty(Empire, 'developingRoomCount', {
-	get: function() {
-		const lastVisited = this.lastVisited;
-		let count = 0;
-
-		for(let name in lastVisited)
-			if(Memory.rooms[name].developing)
-				count++;
-
-		return count;
-	},
-	enumerable: false,
-	configurable: true
-});
-
 Object.defineProperty(Empire, 'cleanupRooms', {
 	get: function() {
 		const lastVisited = this.lastVisited;
@@ -181,3 +178,39 @@ Object.defineProperty(Empire, 'cleanupRooms', {
 	enumerable: false,
 	configurable: true
 });
+
+Object.defineProperty(Empire, 'reservedRooms', {
+	get: function() {
+		if(!Empire.memory.reservedRooms) Empire.memory.reservedRooms = [];
+		return Empire.memory.reservedRooms;
+	},
+	enumerable: false,
+	configurable: true
+});
+
+Object.defineProperty(Empire, 'developingRoom', {
+	get: function() { return Empire.memory.developingRoom; },
+	set: function(value) { Empire.memory.developingRoom = value;},
+	enumerable: false,
+	configurable: true
+});
+
+Empire.getReserveRoom = function() {
+	let reserved = this.reservedRooms.filter(room => {
+		let m = Memory.rooms[room];
+		return !m.reserverID && (!m.reservationTime || m.reservationTime < 3000);
+	});
+	let best = null;
+	let min = 0;
+
+	reserved.forEach(room => {
+		let m = Memory.rooms[room];
+		let count = m.reservationTime || 0;
+		if(!best || count < min) {
+			best = room;
+			min = count;
+		}
+	})
+
+	return best;
+}

@@ -1,5 +1,6 @@
 require('room.manager.mine');
 require('room.manager.neutral');
+require('room.manager.reserved');
 require('room.manager.enemy');
 require('room.manager.build');
 require('room.manager.debug');
@@ -12,16 +13,17 @@ Room.prototype.run = function() {
 	this.updateVisited();
 	if(!this.mine) this.basicScoutInfo();
 	if(this.mine) this.runMyRoom();
-	else if(this.enemyStructures.length === 0) this.runNeutralRoom();
+	else if(this.enemyStructures.length === 0 && (!this.controller || !this.controller.reservation)) this.runNeutralRoom();
+	else if(this.controller && this.controller.reservation && this.controller.reservation.username === username) this.runReservedRoom();
 	else this.runEnemyRoom();
 }
 
 Room.prototype.basicScoutInfo = function() {
-	const reduceAttackParts = (acc, cv) => acc += (cv === ATTACK || cv === RANGED_ATTACK) ? 1 : 0;
+	const reduceAttackParts = (acc, cv) => acc += (cv.type == ATTACK || cv.type == RANGED_ATTACK) ? 1 : 0;
 	const reduceAttackCreeps = (acc, cv) => acc += cv.body.reduce(reduceAttackParts, 0);
 	if(!this.memory.sourceCount) this.memory.sourceCount = this.sourceCount;
 	let enemyCreeps = this.find(FIND_HOSTILE_CREEPS);
-	let enemyStructures = this.find(FIND_HOSTILE_STRUCTURES);
+	let enemyStructures = this.enemyStructures;
 	this.memory.enemyStructureCount = enemyStructures.length;
 	this.memory.enemyTowerCount = enemyStructures.filter(struct => struct.structureType === STRUCTURE_TOWER).length;
 	this.memory.enemyCreeps = enemyCreeps.length;
@@ -95,7 +97,7 @@ Object.defineProperty(Room.prototype, 'mine', {
 
 Object.defineProperty(Room.prototype, 'enemyStructures', {
 	get: function() {
-		return Memoize.get("enemyStructure", () => this.find(FIND_HOSTILE_STRUCTURES), this, 100);
+		return Memoize.get("enemyStructure", () => this.find(FIND_HOSTILE_STRUCTURES), this);
 	},
 	enumerable: false,
 	configurable: true

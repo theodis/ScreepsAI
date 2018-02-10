@@ -57,6 +57,8 @@ Room.prototype.buildRoad = function(from, to, thickness = 0) {
 	}
 
 	if(typeof from !== "RoomPosition") from = new RoomPosition(from.x, from.y, this.name);
+
+	this.queueConstruction({x: from.x || from.pos.x, y: from.y || from.pos.y}, STRUCTURE_ROAD);
 	let path = from.findPathTo(to, {ignoreCreeps: true, costCallback});
 	for(let pos of path) {
 		this.queueConstruction({x: pos.x, y: pos.y}, STRUCTURE_ROAD);
@@ -446,6 +448,7 @@ Object.defineProperty(Room.prototype, 'exitRoadSpots', {
 })
 
 Room.prototype.getExitRoadSpots = function(dir) {
+	dir = Number(dir);
 	switch(dir) {
 		case TOP:
 			return this.exitRoadSpots.filter(spot => spot.y === 1);

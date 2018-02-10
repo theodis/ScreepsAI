@@ -9,6 +9,11 @@ Empire.recycleCreepMemory = function() {
 			//If it had a claim revoke it
 			let claim = Memory.creeps[name].claim;
 			if(claim && claim.room) Game.rooms[claim.room].unclaimSourceMineSpot(claim);
+
+			//Clear creep reservation claim
+			let reserveRoom = Memory.creeps[name].reserveRoom;
+			if(reserveRoom) delete Memory.rooms[reserveRoom].reserverID;
+
 			delete Memory.creeps[name];
 		}
 	}
