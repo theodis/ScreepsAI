@@ -71,12 +71,11 @@ Room.prototype.runMyRoom = function() {
 	}.bind(this);
 
 	if(!this.memory.initialized){
-		if(global.lotsOfTime) init();
-		else return; //Bail out if not enough time to initialize
+		init();
 	}
-	while(this.memory.roomLevel < this.controller.level && global.lotsOfTime) levelUp(++this.memory.roomLevel);
-	if(global.lotsOfTime) maintenance();
-	if(global.lotsOfTime) this.setUpBuildQueue();
+	while(this.memory.roomLevel < this.controller.level) levelUp(++this.memory.roomLevel);
+	maintenance();
+	this.setUpBuildQueue();
 	loop();
 
 }

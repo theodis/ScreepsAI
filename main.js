@@ -12,7 +12,6 @@ module.exports.loop = function () {
 
 	//Keep bucket to a minimum of 100
 	if(Game.cpu.bucket < 100) return;
-
 	Empire.run();
 	Object.keys(Game.rooms).forEach(key => Game.rooms[key].run());
 	Object.keys(Game.creeps).forEach(key => Game.creeps[key].run());
