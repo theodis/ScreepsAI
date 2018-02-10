@@ -157,7 +157,7 @@ Object.defineProperty(Empire, 'cleanupRooms', {
 
 		for(let name in lastVisited) {
 			let m = Memory.rooms[name];
-			if(m.enemyTowerCount === 0 && m.enemyAttackParts === 0 && m.enemyStructureCount > 0)
+			if(m.enemyTowerCount === 0 && m.enemyAttackParts === 0 && m.enemyStructureCount > 0 && !m.safeMode)
 				ret.push(name);
 		}
 

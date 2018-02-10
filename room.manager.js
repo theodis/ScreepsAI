@@ -26,6 +26,12 @@ Room.prototype.basicScoutInfo = function() {
 	this.memory.enemyTowerCount = enemyStructures.filter(struct => struct.structureType === STRUCTURE_TOWER).length;
 	this.memory.enemyCreeps = enemyCreeps.length;
 	this.memory.enemyAttackParts = enemyCreeps.reduce(reduceAttackCreeps,0);
+
+	if(this.controller) {
+		this.memory.safeMode = this.controller.safeMode;
+		this.memory.safeModeAvailable = this.controller.safeModeAvailable;
+		this.memory.safeModeCooldown = this.controller.safeModeCooldown;
+	}
 }
 
 Room.prototype.updateVisited = function() {
