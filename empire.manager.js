@@ -9,7 +9,7 @@ Empire.run = function() {
 
 	let spawn = Empire.mainSpawn;
 	if(!spawn.spawning && spawn.room.energyAvailable === spawn.room.energyCapacityAvailable) {
-		if(spawn.room.storage) {
+		if(spawn.room.storage && spawn.room.storage.store.energy >= 20000) {
 			let role = null;
 			if(Empire.scoutCount < 1)
 				role = "scout";
@@ -28,7 +28,7 @@ Empire.run = function() {
 		}
 	}
 
-	if(spawn.room.storage) {
+	if(spawn.room.storage && spawn.room.storage.store.energy >= 30000) {
 		if(!Empire.developingRoom && Empire.potentialReserves.length) {
 			// Pick a room and start reserve process
 			let room = Empire.potentialReserves[0];
