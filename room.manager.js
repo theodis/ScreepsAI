@@ -10,14 +10,22 @@ Room.HEIGHT = 50;
 
 Room.prototype.run = function() {
 	this.updateVisited();
-	this.basicScoutInfo();
+	if(!this.mine) this.basicScoutInfo();
 	if(this.mine) this.runMyRoom();
 	else if(this.enemyStructures.length === 0) this.runNeutralRoom();
 	else this.runEnemyRoom();
 }
 
 Room.prototype.basicScoutInfo = function() {
+	const reduceAttackParts = (acc, cv) => acc += (cv === ATTACK || cv === RANGED_ATTACK) ? 1 : 0;
+	const reduceAttackCreeps = (acc, cv) => acc += cv.body.reduce(reduceAttackParts, 0);
 	if(!this.memory.sourceCount) this.memory.sourceCount = this.sourceCount;
+	let enemyCreeps = this.find(FIND_HOSTILE_CREEPS);
+	let enemyStructures = this.find(FIND_HOSTILE_STRUCTURES);
+	this.memory.enemyStructureCount = enemyStructures.length;
+	this.memory.enemyTowerCount = enemyStructures.filter(struct => struct.structureType === STRUCTURE_TOWER).length;
+	this.memory.enemyCreeps = enemyCreeps.length;
+	this.memory.enemyAttackParts = enemyCreeps.reduce(reduceAttackCreeps,0);
 }
 
 Room.prototype.updateVisited = function() {
