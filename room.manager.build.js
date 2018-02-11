@@ -14,14 +14,17 @@ Room.prototype.buildQueued = function(count) {
 }
 
 Room.prototype.queueConstruction = function(pos, type) {
-	let buildQueue = this.memory.buildQueue;
-	let buildQueueTypeCount = this.memory.buildQueueTypeCount;
+	let terrain = this.lookForAt(LOOK_TERRAIN,pos.x,pos.y);
+	if(terrain !== "plain" || terrain !== "swamp") return; // Bail out on terraint hat can't be built on
+
 	let existingCons = this.lookForAt(LOOK_CONSTRUCTION_SITES, pos.x, pos.y);
 	let existingStruct = this.lookForAt(LOOK_STRUCTURES, pos.x, pos.y);
-	if(existingCons.length && existingCons[0].structureType === type) {}
-	else if(existingStruct.length && existingStruct[0].structureType === type) {}
-	else if(existingStruct.length && existingStruct[0].structureType !== STRUCTURE_ROAD) {}
+	if(existingCons.find(struct => struct.structureType === type)) {} // Already constructing this here
+	else if(type !== STRUCTURE_ROAD && existingStruct.find(struct => struct.structureType !== STRUCTURE_ROAD)) {} // Non road structure already here
+	else if(type === STRUCTURE_ROAD && existingStruct.find(struct => OBSTACLE_OBJECT_TYPES.indexOf(struct.structureType) !== -1 )) {} // Trying to build a road on a structure that doesn't allow movement
 	else {
+		let buildQueue = this.memory.buildQueue;
+		let buildQueueTypeCount = this.memory.buildQueueTypeCount;
 		if(!buildQueueTypeCount[type]) buildQueueTypeCount[type] = 0;
 		buildQueueTypeCount[type]++;
 		buildQueue.push({x:pos.x, y:pos.y, type});
