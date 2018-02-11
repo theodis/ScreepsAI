@@ -132,9 +132,9 @@ Room.prototype.handleSpawns = function() {
 
 	if(workers < Math.max(this.minWorkers, this.maxWorkers)) {
 		role = "worker"
-	} else if(containerCount == this.sourceCount && miners < this.sourceCount) {
+	} else if(containerCount === this.sourceCount && miners < this.sourceCount) {
 		role = "miner"
-	} else if(this.storage && carrys < 2) {
+	} else if(this.storage && miners && carrys < 2) {
 		role = "carry";
 	}
 
