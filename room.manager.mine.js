@@ -14,8 +14,7 @@ Room.prototype.runMyRoom = function() {
 		//Plan out containers and initial roads
 
 		//Flag storage
-		let storageSpot = this.storageSpot; storageSpot = new RoomPosition(storageSpot.x, storageSpot.y, this.name);
-		let spots = this.sourceContainerSpots;
+		let storageSpot = this.storageSpot;
 		let mineSpots = this.sourceMineSpots;
 
 		this.memory.initialized = true;
@@ -126,15 +125,14 @@ Room.prototype.handleSpawns = function() {
 	let carrys = creepsByRole["carry"] ? creepsByRole["carry"].length : 0;
 
 	if(this.energyAvailable < 300 || ((carrys > 0 || workers > 0) && this.energyAvailable < this.energyCapacityAvailable )) return;
-	let containerCount = this.find(FIND_STRUCTURES, {filter: struct => struct.structureType === "container" }).length;
+	let containerCount = this.find(FIND_STRUCTURES, {filter: struct => struct.structureType === STRUCTURE_CONTAINER }).length;
 
 	let role = null;
-
 	if(workers < Math.max(this.minWorkers, this.maxWorkers)) {
 		role = "worker"
-	} else if(containerCount === this.sourceCount && miners < this.sourceCount) {
+	} else if(miners < Math.min(this.sourceCount, containerCount)) {
 		role = "miner"
-	} else if(this.storage && miners && carrys < 2) {
+	} else if(this.storage && miners && carrys < this.sourceCount) {
 		role = "carry";
 	}
 
@@ -171,33 +169,6 @@ Object.defineProperty(Room.prototype, 'storageSpot', {
 			}
 		}
 		return new RoomPosition(this.memory.storageSpot.x, this.memory.storageSpot.y , this.name);
-	},
-	enumerable: false,
-	configurable: true
-});
-
-Object.defineProperty(Room.prototype, 'sourceContainerSpots', {
-	get: function() {
-		if(!this.mine) return null;
-		if(!this.memory.sourceContainerSpots) {
-			let storageSpot = this.storageSpot;
-			let spots = {};
-			let sources = this.find(FIND_SOURCES);
-			sources.forEach(source => {
-				let flag = this.find(FIND_FLAGS, {filter: flag => flag === "SourceContainer:" + source.id});
-				if(flag.length) {
-					spots[source.id] = {x:flag[0].pos.x, y:flag[0].pos.y};
-				} else {
-					let path = source.pos.findPathTo(new RoomPosition(storageSpot.x,storageSpot.y,this.name));
-					if(path.length >= 2);
-					let pos = this.getFreeSpotNear(path[1].x,path[1].y,1,1,1);
-					this.createFlag(pos.x,pos.y,"SourceContainer:" + source.id,COLOR_YELLOW);
-					spots[source.id] = pos;
-				}
-			});
-			this.memory.sourceContainerSpots = spots;
-		}
-		return this.memory.sourceContainerSpots;
 	},
 	enumerable: false,
 	configurable: true

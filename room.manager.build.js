@@ -15,8 +15,7 @@ Room.prototype.buildQueued = function(count) {
 
 Room.prototype.queueConstruction = function(pos, type) {
 	let terrain = this.lookForAt(LOOK_TERRAIN,pos.x,pos.y);
-	if(terrain !== "plain" || terrain !== "swamp") return; // Bail out on terraint hat can't be built on
-
+	if(terrain === "wall") return; // Bail out on terraint hat can't be built on
 	let existingCons = this.lookForAt(LOOK_CONSTRUCTION_SITES, pos.x, pos.y);
 	let existingStruct = this.lookForAt(LOOK_STRUCTURES, pos.x, pos.y);
 	if(existingCons.find(struct => struct.structureType === type)) {} // Already constructing this here
@@ -59,7 +58,10 @@ Room.prototype.buildRoad = function(from, to, thickness = 0) {
 		return newCM;
 	}
 
+	from = from.pos || from;
+	to = to.pos || to;
 	if(typeof from !== "RoomPosition") from = new RoomPosition(from.x, from.y, this.name);
+	if(typeof to !== "RoomPosition") to = new RoomPosition(to.x, to.y, this.name);
 
 	this.queueConstruction({x: from.x || from.pos.x, y: from.y || from.pos.y}, STRUCTURE_ROAD);
 	let path = from.findPathTo(to, {ignoreCreeps: true, costCallback});
@@ -234,64 +236,81 @@ Room.prototype.setUpBuildQueue = function() {
 	if(this.memory.lastBuildQueueUpdate && Game.time < this.memory.lastBuildQueueUpdate + Room.UPDATE_BUILD_QUEUE_FREQUENCY)
 		return;
 
-	let remaining = this.buildingsLeft;
-	let storageSpot = this.storageSpot; storageSpot = new RoomPosition(storageSpot.x, storageSpot.y, this.name);
-	let spots = this.sourceContainerSpots;
-	let mineSpots = this.sourceMineSpots;
-	let spawn = this.mainSpawn;
+	const remaining = this.buildingsLeft;
+	const storageSpot = this.storageSpot;
+	const mineSpots = this.sourceMineSpots;
+	const spawn = this.mainSpawn;
+	const sources = this.find(FIND_SOURCES);
+	const typesBuildRoadAround = [STRUCTURE_STORAGE, STRUCTURE_SPAWN, STRUCTURE_CONTAINER, STRUCTURE_TOWER, STRUCTURE_EXTENSION];
+	const typesBuildRoadToStorage = [STRUCTURE_SPAWN, STRUCTURE_CONTAINER, STRUCTURE_TOWER, STRUCTURE_CONTROLLER];
+	const typesBuildThickRoadToStorage = [STRUCTURE_CONTROLLER, STRUCTURE_CONTAINER];
 
+	const structuresToBuildRoadAround = this.find(FIND_STRUCTURES).filter(struct => typesBuildRoadAround.indexOf(struct.structureType) !== -1);
+	const structuresToBuildRoadToStorage = this.find(FIND_STRUCTURES).filter(struct => typesBuildRoadToStorage.indexOf(struct.structureType) !== -1);
 	//Build order
 
 	//Build containers
-	Object.keys(spots).forEach(key => this.queueConstruction(spots[key], STRUCTURE_CONTAINER));
+	if(remaining[STRUCTURE_CONTAINER]) {
+		const sourceContainerCounts = sources.map(source => {
+			const top  = source.pos.y - 2;
+			const left = source.pos.x - 2;
+			const bottom = source.pos.y + 2;
+			const right = source.pos.x + 2;
+			let count = 0;
 
-	//Road from source mine spots to containers
-	Object.keys(spots).forEach(key => {
-		let pos = spots[key];
-		let roomPos = new RoomPosition(pos.x,pos.y,this.name);
-
-		//Road from container to mining spots
-		mineSpots[key].forEach(mineSpot => {
-			let mineSpotPos = new RoomPosition(mineSpot.x,mineSpot.y,this.name);
-			this.buildRoad(mineSpotPos,roomPos);
+			count += this.lookForAtArea(LOOK_STRUCTURES, top,left,bottom,right, true).filter(look => look.structure.structureType === STRUCTURE_CONTAINER);
+			count += this.lookForAtArea(LOOK_CONSTRUCTION_SITES, top,left,bottom,right, true).filter(look => look.constructionSite.structureType === STRUCTURE_CONTAINER);
+			return count;
 		});
+		const equalAmount = !!sourceContainerCounts.reduce((acc, cv) => acc === cv ? acc : NaN);
+		let sourcesToBuildContainer = null;
+		if(equalAmount && sources.length <= remaining[STRUCTURE_CONTAINER]) {
+			//If each source has an equal number of containers
+			sourcesToBuildContainer = sources;
+		} else {
+			//Just build one for whatever has the minimum
+			let min = 0;
+			let best = null;
+			for(let i in sources) {
+				let count = sourceContainerCounts[i];
+				if(!best || count < min) {
+					best = sources[i];
+					min = count;
+				}
+			}
+			sourcesToBuildContainer = [best];
+		}
+		sourcesToBuildContainer.forEach(source => {
+			let nearestSpot = getNearest(storageSpot, mineSpots[source.id]);
+			let pos = this.getFreeSpotNear(nearestSpot.x, nearestSpot.y, 1, 1, 0);
+			this.queueConstruction(pos, STRUCTURE_CONTAINER);
+		})
+	}
+
+	//Road from source mine spots to mine spot closest to storage
+	sources.forEach(source => {
+		let spots = mineSpots[source.id];
+		let nearestSpot = getNearest(storageSpot, spots);
+
+		spots.forEach(spot => {
+			if(spot === nearestSpot) return;
+			this.buildRoad(spot,nearestSpot);
+		})
 	});
 
-	//Road from containers to storageSpot
-	Object.keys(spots).forEach(key => {
-		let pos = spots[key];
-		let roomPos = new RoomPosition(pos.x,pos.y,this.name);
-		this.buildRoad(roomPos, storageSpot, this.storage ? 1 : 0);
-	});
+	//Roads from storage
+	structuresToBuildRoadToStorage.forEach(struct => this.buildRoad(struct.pos, storageSpot));
 
-	//Road from storage to main spawn
-	this.buildRoad(storageSpot, spawn.pos);
-
-	//Road around containers
-	Object.keys(spots).forEach(key => {
-		let pos = spots[key];
-		this.buildRoadAround(pos.x, pos.y);
-	});
-
-	//Road around stoarge
-	this.buildRoadAround(storageSpot.x, storageSpot.y);
-
-	//Road around spawn
-	this.buildRoadAround(spawn.pos.x, spawn.pos.y);
+	//Roads around structure
+	structuresToBuildRoadAround.forEach(struct => this.buildRoadAround(struct.pos.x, struct.pos.y));
 
 	//Build storage if high enough level
 	if(remaining[STRUCTURE_STORAGE]) this.queueConstruction(storageSpot, STRUCTURE_STORAGE);
-
-	//Build road from storage to controller
-	this.buildRoad(storageSpot, this.controller.pos, this.storage ? 1 : 0);
 
 	//Build as many towers with roads as possible
 	for(let i = 0; i < remaining[STRUCTURE_TOWER]; i++) {
 		let pos = this.getTowerSpot();
 		this.queueConstruction(pos, STRUCTURE_TOWER);
-		this.buildRoad(pos, storageSpot);
-		this.buildRoadAround(pos.x, pos.y,1,1,1);
-
 	}
 
 	//Build as many extensions as possible
@@ -302,8 +321,6 @@ Room.prototype.setUpBuildQueue = function() {
 		for(let j = 0; j < 2; j++)
 			for(let i = 0; i < 2; i++)
 				this.queueConstruction({x: pos.x + i, y: pos.y + j}, STRUCTURE_EXTENSION);
-		this.buildRoad(pos, storageSpot);
-		this.buildRoadAround(pos.x, pos.y,2,2,1);
 		count -= 4;
 	}
 

@@ -108,12 +108,6 @@ Object.defineProperty(Room.prototype, 'sourceClaims', {
 	configurable: true
 });
 
-Room.prototype.getClaimContainer = function(claim) {
-	let containerPos = this.sourceContainerSpots[claim.id];
-	let structures = this.lookForAt(LOOK_STRUCTURES,containerPos.x,containerPos.y);
-	return structures.find(struct => struct.structureType === "container");
-}
-
 Object.defineProperty(Room.prototype, 'sourceCount', {
 	get: function() {
 		return Memoize.get("sourceCount", () => this.find(FIND_SOURCES).length, this, 1000000);
