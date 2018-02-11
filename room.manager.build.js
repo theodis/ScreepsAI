@@ -1,5 +1,6 @@
 Room.NO_BUILD_RADIUS = 2;
-Room.MAX_CONSTRUCTION_SITES = 80;
+Room.MAX_CONSTRUCTION_SITES = 20;
+Room.MAX_CONSTRUCTION_QUEUE = 100;
 Room.UPDATE_BUILD_QUEUE_FREQUENCY = 1000;
 
 Room.prototype.buildQueued = function(count) {
@@ -14,6 +15,8 @@ Room.prototype.buildQueued = function(count) {
 }
 
 Room.prototype.queueConstruction = function(pos, type) {
+	const buildQueue = this.memory.buildQueue;
+	if(buildQueue.length >= Room.MAX_CONSTRUCTION_QUEUE) return; // Exit if limit hit
 	let terrain = this.lookForAt(LOOK_TERRAIN,pos.x,pos.y);
 	if(terrain === "wall") return; // Bail out on terraint hat can't be built on
 	let existingCons = this.lookForAt(LOOK_CONSTRUCTION_SITES, pos.x, pos.y);
@@ -22,7 +25,6 @@ Room.prototype.queueConstruction = function(pos, type) {
 	else if(type !== STRUCTURE_ROAD && existingStruct.find(struct => struct.structureType !== STRUCTURE_ROAD)) {} // Non road structure already here
 	else if(type === STRUCTURE_ROAD && existingStruct.find(struct => OBSTACLE_OBJECT_TYPES.indexOf(struct.structureType) !== -1 )) {} // Trying to build a road on a structure that doesn't allow movement
 	else {
-		let buildQueue = this.memory.buildQueue;
 		let buildQueueTypeCount = this.memory.buildQueueTypeCount;
 		if(!buildQueueTypeCount[type]) buildQueueTypeCount[type] = 0;
 		buildQueueTypeCount[type]++;
