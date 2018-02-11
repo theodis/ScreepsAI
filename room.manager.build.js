@@ -289,23 +289,6 @@ Room.prototype.setUpBuildQueue = function() {
 		})
 	}
 
-	//Road from source mine spots to mine spot closest to storage
-	sources.forEach(source => {
-		let spots = mineSpots[source.id];
-		let nearestSpot = getNearest(storageSpot, spots);
-
-		spots.forEach(spot => {
-			if(spot === nearestSpot) return;
-			this.buildRoad(spot,nearestSpot);
-		})
-	});
-
-	//Roads from storage
-	structuresToBuildRoadToStorage.forEach(struct => this.buildRoad(struct.pos, storageSpot));
-
-	//Roads around structure
-	structuresToBuildRoadAround.forEach(struct => this.buildRoadAround(struct.pos.x, struct.pos.y));
-
 	//Build storage if high enough level
 	if(remaining[STRUCTURE_STORAGE]) this.queueConstruction(storageSpot, STRUCTURE_STORAGE);
 
@@ -325,6 +308,23 @@ Room.prototype.setUpBuildQueue = function() {
 				this.queueConstruction({x: pos.x + i, y: pos.y + j}, STRUCTURE_EXTENSION);
 		count -= 4;
 	}
+
+	//Road from source mine spots to mine spot closest to storage
+	sources.forEach(source => {
+		let spots = mineSpots[source.id];
+		let nearestSpot = getNearest(storageSpot, spots);
+
+		spots.forEach(spot => {
+			if(spot === nearestSpot) return;
+			this.buildRoad(spot,nearestSpot);
+		})
+	});
+
+	//Roads from storage
+	structuresToBuildRoadToStorage.forEach(struct => this.buildRoad(struct.pos, storageSpot));
+
+	//Roads around structure
+	structuresToBuildRoadAround.forEach(struct => this.buildRoadAround(struct.pos.x, struct.pos.y));
 
 	//Build roads to exits and walls when controller is level 3
 	if(this.controller.level >= 3) {
