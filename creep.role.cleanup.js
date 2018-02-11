@@ -21,7 +21,7 @@ module.exports = {
 					let best = null;
 					let min = 0;
 					rooms.forEach(room => {
-						let dist = Game.map.findRoute(this.room, room);
+						let dist = Game.map.findRoute(this.room, room, {routeCallback: avoidEnemyRoomsCallback});
 						if(!best || dist < min) {
 							best = room;
 							min = dist;

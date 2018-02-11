@@ -29,7 +29,7 @@ module.exports = {
 				let best = null;
 				rooms.forEach(room => {
 					let spawnDist = Empire.nearestSpawnDistance(room);
-					let scoutDist = Game.map.findRoute(this.room, room).length;
+					let scoutDist = Game.map.findRoute(this.room, room, {routeCallback: avoidEnemyRoomsCallback}).length;
 					let score = spawnDist + scoutDist;
 					if(!best || score < min) {
 						min = score;

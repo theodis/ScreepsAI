@@ -1,3 +1,25 @@
+global.avoidEnemyRoomsCallback = function(roomName, fromRoomName) {
+	function roomScore(rm) {
+		let score = 0;
+
+		// More expensive for more hostile
+		score += rm.type === "reserved" ? 0.5 : 0;
+		score += rm.type === "neutral" ? 1.0 : 0;
+		score += rm.type === "enemy" ? 2.0 : 0;
+
+		// Much more expensive with towers
+		score += rm.enemyTowerCount * 10;
+
+		// More expensive if creeps with attack parts last remembered there
+		score += rm.enemyAttackParts / 10;
+	}
+
+	let rm = Memory.rooms[roomName];
+	let frm = Memory.rooms[fromRoomName];
+
+	return Math.max(10 + roomScore(rm) - roomScore(frm), 1);
+}
+
 global.creepCost = function(loadout) { return loadout.reduce(((cost,part) => cost + BODYPART_COST[part]),0); }
 
 global.getCPUCost = function(f) {
