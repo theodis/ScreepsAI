@@ -44,10 +44,11 @@ module.exports = {
 			this.assignTask({name: "mini_move", action: "transfer", target_id: this.room.storage.id, action_params: [RESOURCE_ENERGY]});
 		} else if(this.room.fortifyTargets.length) {
 			this.assignTask({name: "repair", target_id: getNearest(this, this.room.fortifyTargets).id });
-		} else {
+		} else if(!this.room.storage || this.room.storage.store.energy > 21000) {
 			this.assignTask({name: "upgrade", target_id: this.room.controller.id});
+		} else {
+			this.assignTask({name: "unload_energy", dest: "container|storage"});
 		}
-
 
 	},
 };
