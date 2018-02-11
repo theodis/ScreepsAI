@@ -1,7 +1,7 @@
 Room.NO_BUILD_RADIUS = 2;
 Room.MAX_CONSTRUCTION_SITES = 20;
 Room.MAX_CONSTRUCTION_QUEUE = 100;
-Room.UPDATE_BUILD_QUEUE_FREQUENCY = 1000;
+Room.UPDATE_BUILD_QUEUE_FREQUENCY = 500;
 
 Room.prototype.buildQueued = function(count) {
 	let buildQueue = this.memory.buildQueue;
@@ -238,6 +238,7 @@ Room.prototype.setUpBuildQueue = function() {
 	if(this.memory.lastBuildQueueUpdate && Game.time < this.memory.lastBuildQueueUpdate + Room.UPDATE_BUILD_QUEUE_FREQUENCY)
 		return;
 
+	const buildQueue = this.memory.buildQueue;
 	const remaining = this.buildingsLeft;
 	const storageSpot = this.storageSpot;
 	const mineSpots = this.sourceMineSpots;
@@ -302,6 +303,8 @@ Room.prototype.setUpBuildQueue = function() {
 	let count = remaining[STRUCTURE_EXTENSION]
 
 	while(count >= 4) {
+		//Break out if not enough space to queue all extensions
+		if(buildQueue.length > Room.MAX_CONSTRUCTION_QUEUE - 4) break;
 		let pos = this.getFreeSpotNear(storageSpot.x,storageSpot.y,2,2,1);
 		for(let j = 0; j < 2; j++)
 			for(let i = 0; i < 2; i++)
