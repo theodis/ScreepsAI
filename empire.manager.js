@@ -15,10 +15,10 @@ Empire.run = function() {
 				role = "scout";
 			else if(Empire.cleanupCount < 1 && Empire.cleanupRooms.length)
 				role = "cleanup";
-			else if(Empire.getReserveRoom())
+/*			else if(Empire.getReserveRoom())
 				role = "reserver";
 			else if(Empire.getReserveWorkRoom())
-				role = "reserveworker";
+				role = "reserveworker";*/
 			if(role) {
 				const name = role + Game.time;
 				const loadout = Creep.getRoleLoadout(role, spawn.room.energyAvailable);
@@ -27,7 +27,7 @@ Empire.run = function() {
 			}
 		}
 	}
-
+/*
 	if(spawn.room.storage && spawn.room.storage.store.energy >= 30000) {
 		if(!Empire.developingRoom && Empire.potentialReserves.length) {
 			// Pick a room and start reserve process
@@ -36,7 +36,7 @@ Empire.run = function() {
 			Empire.reservedRooms.push(room);
 			Memory.rooms[room].developing = true;
 		}
-	}
+	}*/
 }
 
 Empire.creepCount = function(role) {
