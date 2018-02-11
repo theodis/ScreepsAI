@@ -83,6 +83,12 @@ Object.defineProperty(Room.prototype, 'creepsByRole', {
 	configurable: true
 });
 
+Object.defineProperty(Room.prototype, 'carryCount', {
+	get: function() { return this.creepsByRole["carry"] || 0; },
+	enumerable: false,
+	configurable: true
+});
+
 Object.defineProperty(Room.prototype, 'creeps', {
 	get: function() { return this.find(FIND_MY_CREEPS); },
 	enumerable: false,

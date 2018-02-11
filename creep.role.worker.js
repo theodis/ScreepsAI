@@ -31,9 +31,9 @@ module.exports = {
 			this.assignTask({name: "get_energy"});
 		} else if(this.room.controller.ticksToDowngrade < 3000) {
 			this.assignTask({name: "upgrade", target_id: this.room.controller.id});
-		} else if(mainSpawn.energy < mainSpawn.energyCapacity) {
+		} else if(!this.room.carryCount && mainSpawn.energy < mainSpawn.energyCapacity) {
 			this.assignTask({name: "mini_move", action: "transfer", target_id: mainSpawn.id, action_params: [RESOURCE_ENERGY]});
-		} else if(this.room.extensionsToFill.length) {
+		} else if(!this.room.carryCount && this.room.extensionsToFill.length) {
 			let best = getNearest(this, this.room.extensionsToFill);
 			this.assignTask({name: "mini_move", action: "transfer", target_id: best.id, action_params: [RESOURCE_ENERGY]});
 		} else if(this.room.repairTargets.length) {
