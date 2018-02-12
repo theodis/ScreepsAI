@@ -16,7 +16,7 @@ module.exports = {
 				Memory.rooms[room].reserverID = this.name;
 			}
 		} else if(this.room.name != this.memory.reserveRoom) {
-			this.assignTask({name: "mini_move", x: 25, y: 25, roomName: this.memory.reserveRoom, min_dist: 49 });
+			this.assignTask({name: "mini_move", x: 25, y: 25, roomName: this.memory.reserveRoom, min_dist: 22 });
 		} else {
 			this.assignTask({name: "reserve", target_id: this.room.controller.id});
 		}

@@ -37,7 +37,7 @@ module.exports = {
 					}
 				});
 
-				this.assignTask({name: "mini_move", x: 25, y: 25, roomName: best, min_dist: 49 });
+				this.assignTask({name: "mini_move", x: 25, y: 25, roomName: best, min_dist: 22 });
 			}
 		}
 	},

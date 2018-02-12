@@ -2,6 +2,7 @@ require('creep.role');
 require('creep.task');
 
 Creep.prototype.run = function() {
+	this.memory.lastRoom = this.room.name;
 	if((this.ticksToLive <= this.ticksToLiveRenew || this.hits < this.hitsMax * 0.75) && (!this.task || this.task.name === "renew") ) {
 		this.drop("energy");
 		this.assignTask({name: "renew"});

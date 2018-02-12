@@ -41,7 +41,6 @@ module.exports = {
 			if(!target) return "fail";
 		}
 
-		//if(!target) console.log(this.name, JSON.stringify(task));
 		if(target) pos = target.pos; else pos = new RoomPosition(task.x,task.y,task.roomName);
 
 		//If the action can be done then it's close enough
@@ -57,7 +56,37 @@ module.exports = {
 
 		//Otherwise move to target
 		let result = null
-		result = this.moveTo(pos, {visualizePathStyle: {stroke: '#ffffff'}});
+
+		if(this.room.name === pos.roomName || dist <= 100) {
+			delete(task.temp_target_path);
+			delete(task.temp_target_pos);
+			result = this.moveTo(pos, {visualizePathStyle: {stroke: '#ffffff'}});
+		} else {
+			if(!task.temp_target_path || (!task.temp_target_pos && !task.temp_target_path.length)) {
+				task.temp_target_path = Game.map.findRoute(this.room.name, pos.roomName, {routeCallback: avoidEnemyRoomsCallback});
+				task.first_step = true;
+			}
+			if(!task.temp_target_pos || task.temp_target_pos.roomName !== this.room.name) {
+				let path_part_ind = task.temp_target_path.findIndex(part => part.room === this.room.name);
+				if(task.first_step) path_part_ind++;
+				if(path_part_ind === -1) {
+					delete(task.temp_target_path);
+					delete(task.temp_target_pos);
+				} else {
+					if(task.first_step)
+						delete(task.first_step);
+					else
+						path_part_ind++;
+					//let temp_target_pos = getNearest(this, this.room.find(task.temp_target_path[path_part_ind].exit));
+					//task.temp_target_pos = {x:temp_target_pos.x, y:temp_target_pos.y, roomName:temp_target_pos.roomName};
+					task.temp_target_pos = {x:25, y:25, roomName:task.temp_target_path[path_part_ind+1].room};
+				}
+			}
+			if(task.temp_target_pos) {
+				let temp_target_pos = new RoomPosition(task.temp_target_pos.x, task.temp_target_pos.y, task.temp_target_pos.roomName);
+				result = this.moveTo(temp_target_pos, {visualizePathStyle: {stroke: '#ffffff'}});
+			}
+		}
 		task.last_result = result;
 		if(result === ERR_NO_PATH || result === ERR_NO_BODYPART || result == ERR_INVALID_TARGET) return "fail";
 		return "continue;"

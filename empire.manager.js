@@ -6,6 +6,7 @@ Empire.MAX_CLAIM_DISTANCE = 4;
 
 Empire.run = function() {
 	Empire.recycle();
+	Empire.reduceAvoid();
 
 	let spawn = Empire.mainSpawn;
 	if(!spawn.spawning && spawn.room.energyAvailable === spawn.room.energyCapacityAvailable) {
@@ -37,6 +38,28 @@ Empire.run = function() {
 			Memory.rooms[room].developing = true;
 		}
 	}*/
+}
+
+Empire.reduceAvoid = function() {
+	for(let name in Memory.rooms) {
+		let rm = Memory.rooms[name];
+		if(typeof rm.avoid === "number") {
+			switch(rm.type) {
+				case "mine":
+				case "reserved":
+					rm.avoid = 0;
+					break;
+				case "neutral":
+					rm.avoid -= 0.1;
+					break;
+				case "enemy":
+					rm.avoid -= 0.01;
+					break;
+			}
+			if(rm.avoid <= 0)
+				delete(rm.avoid);
+		}
+	}
 }
 
 Empire.creepCount = function(role) {
