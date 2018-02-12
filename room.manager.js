@@ -97,7 +97,13 @@ Object.defineProperty(Room.prototype, 'minerCount', {
 });
 
 Object.defineProperty(Room.prototype, 'creeps', {
-	get: function() { return this.find(FIND_MY_CREEPS); },
+	get: function() {
+		let ret = [];
+		for(let name in Game.creeps)
+			if(Game.creeps[name].memory.workRoom === this.name)
+				ret.push(Game.creeps[name]);
+		return ret;
+	},
 	enumerable: false,
 	configurable: true
 });

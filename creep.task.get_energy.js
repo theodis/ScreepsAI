@@ -24,11 +24,29 @@ module.exports = {
 			task.subtask = [
 				{name: "mini_move", action: "withdraw", target_id: this.room.bestContainer.id, action_params: [RESOURCE_ENERGY]},
 			];
-		} else if(this.memory.claim || this.room.peekClaimSourceMineSpot(1, this)){
+		} else if(!this.room.minerCount && (this.memory.claim || this.room.peekClaimSourceMineSpot(1, this))) {
 			//Grab a claim if don't already have one
 			task.subtask = [ {name: "mine"} ];
 		} else {
-			return false; //Nowhere to get energy
+			// Try mining in another room
+			const exits = Game.map.describeExits(this.room.name);
+			let mineRoom = null;
+			for(let dir in exits) {
+				const roomName = exits[dir];
+				const rm = Memory.rooms[roomName];
+				if(!rm || (rm.sourceEnergy === 0 && Game.time < Memory.empire.lastVisited[roomName] + 500 ) ) continue;
+				mineRoom = roomName;
+				break;
+			}
+
+			if(!mineRoom)
+				return false; //Nowhere to get energy
+
+			task.subtask = [
+				{name: "mini_move", x: 25, y: 25, roomName: mineRoom, min_dist: 22 },
+				{name: "mine"},
+			];
+
 		}
 
 		//Save subtask info for running

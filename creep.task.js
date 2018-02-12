@@ -28,10 +28,15 @@ Creep.prototype.runSubTask = function(task) {
 	let continue_task = "done";
 
 	let init = false;
+
+	if(!task.subtask)
+		Creep.task[task.name].start.bind(this)(task);
+
 	if(typeof(task.subtaskIndex) === "undefined" ) {
 		task.subtaskIndex = 0;
 		init = true;
 	}
+
 	let subtask = task.subtask[task.subtaskIndex];
 	if(init) Creep.task[subtask.name].start.bind(this)(subtask);
 
