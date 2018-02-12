@@ -91,7 +91,7 @@ Object.defineProperty(Room.prototype, 'carryCount', {
 });
 
 Object.defineProperty(Room.prototype, 'minerCount', {
-	get: function() { return this.creepsByRole["miner"].length || 0; },
+	get: function() { return this.creepsByRole["miner"] ? this.creepsByRole["miner"].length : 0; },
 	enumerable: false,
 	configurable: true
 });
