@@ -17,6 +17,8 @@ Room.prototype.peekClaimSourceMineSpot = function(minEnergy = 1, creep) {
 			let score = basescore;
 			let creeps = this.lookForAt(LOOK_CREEPS, spot[ind].x, spot[ind].y);
 			if(creeps.length && creeps[0] !== creep) continue;
+			let containers = this.lookForAtArea(LOOK_STRUCTURES, spot[ind].y - 1, spot[ind].x - 1, spot[ind].y + 1, spot[ind].x + 1, true).filter(look => look.structure.structureType === STRUCTURE_CONTAINER);
+			score += containers.length * 2;
 			if(creep) score -= distance(spot[ind], creep) * 100;
 			if(source.energy >= minEnergy && score > max && claims[id].length) {
 				max = score;

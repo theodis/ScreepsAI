@@ -14,7 +14,7 @@ module.exports = {
 			task.subtask = [
 				{name: "mini_move", action: "pickup", target_id: droppedEnergy[0].id}
 			];
-		} else if(this.room.storage && this.room.storage.store.energy >= 10000 + this.carryCapacity) {
+		} else if(this.room.storage && this.room.storage.store.energy >= 10000 + this.carryCapacity && !this.memory.idle) {
 			// Get energy from storage
 			task.subtask = [
 				{name: "mini_move", action: "withdraw", target_id: this.room.storage.id, action_params: [RESOURCE_ENERGY]},
@@ -28,6 +28,7 @@ module.exports = {
 			//Grab a claim if don't already have one
 			task.subtask = [ {name: "mine"} ];
 		} else {
+			delete(this.memory.idle);
 			// Try mining in another room
 			const exits = Game.map.describeExits(this.room.name);
 			let mineRoom = null;

@@ -48,6 +48,7 @@ module.exports = {
 			this.assignTask({name: "upgrade", target_id: this.room.controller.id});
 		} else {
 			this.assignTask({name: "unload_energy", dest: "container|storage"});
+			this.memory.idle = true;
 		}
 
 	},
