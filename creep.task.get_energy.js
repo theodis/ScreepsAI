@@ -24,7 +24,7 @@ module.exports = {
 			task.subtask = [
 				{name: "mini_move", action: "withdraw", target_id: this.room.storage.id, action_params: [RESOURCE_ENERGY]},
 			];
-		} else if((!this.room.minerCount || !this.storage) && (this.memory.claim || this.room.peekClaimSourceMineSpot(1, this))) {
+		} else if((!this.room.minerCount || !this.storage || this.storage.store.energy < 5000) && (this.memory.claim || this.room.peekClaimSourceMineSpot(1, this))) {
 			//Grab a claim if don't already have one
 			task.subtask = [ {name: "mine"} ];
 		} else {
