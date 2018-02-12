@@ -44,13 +44,13 @@ module.exports = {
 			this.assignTask({name: "mini_move", action: "transfer", target_id: this.room.storage.id, action_params: [RESOURCE_ENERGY]});
 		} else if(this.room.fortifyTargets.length) {
 			this.assignTask({name: "repair", target_id: getNearest(this, this.room.fortifyTargets).id });
-		} else if(!this.room.storage || this.room.storage.store.energy > 30000) {
-			this.assignTask({name: "upgrade", target_id: this.room.controller.id});
 		} else if(mainSpawn && mainSpawn.energy < mainSpawn.energyCapacity) {
 			this.assignTask({name: "mini_move", action: "transfer", target_id: mainSpawn.id, action_params: [RESOURCE_ENERGY]});
 		} else if(this.room.extensionsToFill.length) {
 			let extension = getNearest(this, this.room.extensionsToFill);
 			this.assignTask({name: "mini_move", action: "transfer", target_id: extension.id, action_params: [RESOURCE_ENERGY]});
+		} else if(!this.room.storage || this.room.storage.store.energy > 30000) {
+			this.assignTask({name: "upgrade", target_id: this.room.controller.id});
 		} else {
 			this.assignTask({name: "unload_energy", dest: "storage"});
 			this.memory.idle = true;
