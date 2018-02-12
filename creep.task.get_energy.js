@@ -24,7 +24,7 @@ module.exports = {
 			task.subtask = [
 				{name: "mini_move", action: "withdraw", target_id: this.room.storage.id, action_params: [RESOURCE_ENERGY]},
 			];
-		} else if((!this.room.minerCount || !this.storage || this.storage.store.energy < 5000) && (this.memory.claim || this.room.peekClaimSourceMineSpot(1, this))) {
+		} else if(!this.room.minerCount && (this.memory.claim || this.room.peekClaimSourceMineSpot(1, this))) {
 			//Grab a claim if don't already have one
 			task.subtask = [ {name: "mine"} ];
 		} else {
@@ -40,13 +40,15 @@ module.exports = {
 				break;
 			}
 
-			if(!mineRoom)
-				return false; //Nowhere to get energy
-
-			task.subtask = [
-				{name: "mini_move", x: 25, y: 25, roomName: mineRoom, min_dist: 22 },
-				{name: "mine"},
-			];
+			if(!mineRoom) {
+				task.subtask = [ {name: "mine"} ];
+				return false; //No known remote energy sources.  Just mine here
+			} else {
+				task.subtask = [
+					{name: "mini_move", x: 25, y: 25, roomName: mineRoom, min_dist: 22 },
+					{name: "mine"},
+				];
+			}
 
 		}
 
