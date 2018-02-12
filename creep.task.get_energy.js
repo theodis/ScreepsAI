@@ -42,7 +42,6 @@ module.exports = {
 
 			if(!mineRoom) {
 				task.subtask = [ {name: "mine"} ];
-				return false; //No known remote energy sources.  Just mine here
 			} else {
 				task.subtask = [
 					{name: "mini_move", x: 25, y: 25, roomName: mineRoom, min_dist: 22 },

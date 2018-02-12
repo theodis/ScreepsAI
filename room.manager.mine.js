@@ -102,7 +102,7 @@ Object.defineProperty(Room.prototype, 'maxWorkers', {
 			if(this.storage)
 				maxWorkers = Math.round(this.storage.store.energy / 50000);
 			else
-				maxWorkers = Math.max(this.sourceMineSpotCount - this.workerCount, this.minWorkers);
+				maxWorkers = Math.max(this.sourceMineSpotCount - this.minerCount, this.minWorkers);
 			return maxWorkers;
 		}
 		return Memoize.get("maxWorkers", maxWorkers, this, 10);
