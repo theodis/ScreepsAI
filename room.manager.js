@@ -125,7 +125,7 @@ Object.defineProperty(Room.prototype, 'enemyStructures', {
 //TODO Make sure not to fix enemy structures!
 Object.defineProperty(Room.prototype, 'repairTargets', {
 	get: function() {
-		let repairTargets = () => this.find(FIND_STRUCTURES, {filter: struct => struct.hits < struct.hitsRepair });
+		let repairTargets = () => this.find(FIND_STRUCTURES, {filter: struct => struct.hits < struct.hitsRepair && struct.structureType !== STRUCTURE_ROAD });
 		return Memoize.get("repairTargets", repairTargets, this, 10);
 	},
 	enumerable: false,
