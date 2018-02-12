@@ -35,7 +35,7 @@ module.exports = {
 			for(let dir in exits) {
 				const roomName = exits[dir];
 				const rm = Memory.rooms[roomName];
-				if(!rm || (rm.sourceEnergy === 0 && Game.time < Memory.empire.lastVisited[roomName] + 500 ) ) continue;
+				if(!rm || (rm.sourceEnergy / rm.sourceCount < 1000 && Game.time < Memory.empire.lastVisited[roomName] + 500 ) ) continue;
 				mineRoom = roomName;
 				break;
 			}
