@@ -98,12 +98,11 @@ Object.defineProperty(Room.prototype, 'minWorkers', {
 Object.defineProperty(Room.prototype, 'maxWorkers', {
 	get: function() {
 		let maxWorkers = () => {
-			let extensionClusters = Math.floor(this.extensions.length / 4);
 			let maxWorkers = 0;
 			if(this.storage)
 				maxWorkers = Math.round(this.storage.store.energy / 50000);
 			else
-				maxWorkers = Math.max(this.sourceMineSpotCount - extensionClusters / 2, this.minWorkers);
+				maxWorkers = Math.max(this.sourceMineSpotCount - this.workerCount, this.minWorkers);
 			return maxWorkers;
 		}
 		return Memoize.get("maxWorkers", maxWorkers, this, 10);
