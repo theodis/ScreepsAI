@@ -48,6 +48,9 @@ module.exports = {
 			this.assignTask({name: "upgrade", target_id: this.room.controller.id});
 		} else if(mainSpawn && mainSpawn.energy < mainSpawn.energyCapacity) {
 			this.assignTask({name: "mini_move", action: "transfer", target_id: mainSpawn.id, action_params: [RESOURCE_ENERGY]});
+		} else if(this.room.extensionsToFill.length) {
+			let extension = getNearest(this, this.room.extensionsToFill);
+			this.assignTask({name: "mini_move", action: "transfer", target_id: extension.id, action_params: [RESOURCE_ENERGY]});
 		} else {
 			this.assignTask({name: "unload_energy", dest: "storage"});
 			this.memory.idle = true;
