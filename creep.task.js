@@ -37,6 +37,8 @@ Creep.prototype.runSubTask = function(task) {
 		init = true;
 	}
 
+	if(!task.subtask) return "fail";
+
 	let subtask = task.subtask[task.subtaskIndex];
 	if(init) Creep.task[subtask.name].start.bind(this)(subtask);
 
