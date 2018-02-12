@@ -1,5 +1,6 @@
 global.avoidEnemyRoomsCallback = function(roomName, fromRoomName) {
 	function roomScore(rm) {
+		if(!rm) return 0; // Unknown rooms cost nothing
 		let score = 0;
 
 		// More expensive for more hostile

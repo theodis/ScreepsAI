@@ -114,3 +114,11 @@ Object.defineProperty(Room.prototype, 'sourceCount', {
 	configurable: true
 });
 
+Object.defineProperty(Room.prototype, 'sourceEnergy', {
+	get: function() {
+		return this.find(FIND_SOURCES).reduce((acc, cv) => acc += cv.energy,0);
+	},
+	enumerable: false,
+	configurable: true
+});
+

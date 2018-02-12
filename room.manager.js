@@ -22,6 +22,7 @@ Room.prototype.basicScoutInfo = function() {
 	const reduceAttackParts = (acc, cv) => acc += (cv.type == ATTACK || cv.type == RANGED_ATTACK) ? 1 : 0;
 	const reduceAttackCreeps = (acc, cv) => acc += cv.body.reduce(reduceAttackParts, 0);
 	if(!this.memory.sourceCount) this.memory.sourceCount = this.sourceCount;
+	this.memory.sourceEnergy = this.sourceEnergy;
 	let enemyCreeps = this.find(FIND_HOSTILE_CREEPS);
 	let enemyStructures = this.enemyStructures;
 	this.memory.enemyStructureCount = enemyStructures.length;
@@ -85,6 +86,12 @@ Object.defineProperty(Room.prototype, 'creepsByRole', {
 
 Object.defineProperty(Room.prototype, 'carryCount', {
 	get: function() { return this.creepsByRole["carry"] || 0; },
+	enumerable: false,
+	configurable: true
+});
+
+Object.defineProperty(Room.prototype, 'minerCount', {
+	get: function() { return this.creepsByRole["miner"] || 0; },
 	enumerable: false,
 	configurable: true
 });
