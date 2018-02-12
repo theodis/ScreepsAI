@@ -14,7 +14,7 @@ module.exports = {
 			task.subtask = [
 				{name: "mini_move", action: "pickup", target_id: droppedEnergy[0].id}
 			];
-		} else if(this.room.bestContainer && this.room.bestContainer.store.energy >= Math.max(this.carryCapacity, 1000) && !this.memory.idle) {
+		} else if(this.room.bestContainer && this.room.bestContainer.store.energy >= Math.max(this.carryCapacity, 2000) && !this.memory.idle) {
 			// Get energy from best container
 			task.subtask = [
 				{name: "mini_move", action: "withdraw", target_id: this.room.bestContainer.id, action_params: [RESOURCE_ENERGY]},
