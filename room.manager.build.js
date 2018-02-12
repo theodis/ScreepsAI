@@ -23,6 +23,7 @@ Room.prototype.queueConstruction = function(pos, type) {
 	let existingStruct = this.lookForAt(LOOK_STRUCTURES, pos.x, pos.y);
 	if(existingCons.find(struct => struct.structureType === type)) {} // Already constructing this here
 	else if(type !== STRUCTURE_ROAD && existingStruct.find(struct => struct.structureType !== STRUCTURE_ROAD)) {} // Non road structure already here
+	else if(existingStruct.find(struct => struct.structureType === type)) {} // Already that structure here
 	else if(type === STRUCTURE_ROAD && existingStruct.find(struct => OBSTACLE_OBJECT_TYPES.indexOf(struct.structureType) !== -1 )) {} // Trying to build a road on a structure that doesn't allow movement
 	else {
 		let buildQueueTypeCount = this.memory.buildQueueTypeCount;
