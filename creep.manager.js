@@ -104,7 +104,7 @@ Object.defineProperty(Creep.prototype, 'shouldRenew', {
 
 Object.defineProperty(Creep.prototype, 'ticksToLiveRenew', {
 	get: function() {
-		const ticksToLiveRenew = () => Math.max(100, (Empire.nearestSpawnDistance(this) + 1) * 60);
+		const ticksToLiveRenew = () => Math.max(200, (Empire.nearestSpawnDistance(this) + 1) * 60);
 		return Memoize.get("ticksToLiveRenew", ticksToLiveRenew, this, 20);
 	},
 	enumerable: false,
