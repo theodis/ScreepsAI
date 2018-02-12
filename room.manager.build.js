@@ -336,6 +336,12 @@ Room.prototype.setUpBuildQueue = function() {
 		this.planWalls();
 	}
 
+	//If storage is built then queue up the thicker roads
+	if(this.storage) {
+		const structuresToBuildThickRoadToStorage = this.find(FIND_STRUCTURES).filter(struct => typesBuildThickRoadToStorage.indexOf(struct.structureType) !== -1);
+		structuresToBuildThickRoadToStorage.forEach(struct => this.buildRoad(struct.pos, storageSpot, 1));
+	}
+
 	this.memory.lastBuildQueueUpdate = Game.time;
 }
 

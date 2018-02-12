@@ -14,15 +14,15 @@ module.exports = {
 			task.subtask = [
 				{name: "mini_move", action: "pickup", target_id: droppedEnergy[0].id}
 			];
-		} else if(this.room.storage && this.room.storage.store.energy >= 10000 + this.carryCapacity && !this.memory.idle) {
-			// Get energy from storage
-			task.subtask = [
-				{name: "mini_move", action: "withdraw", target_id: this.room.storage.id, action_params: [RESOURCE_ENERGY]},
-			];
 		} else if(this.room.bestContainer && this.room.bestContainer.store.energy >= Math.max(this.carryCapacity, 1000) && !this.memory.idle) {
 			// Get energy from best container
 			task.subtask = [
 				{name: "mini_move", action: "withdraw", target_id: this.room.bestContainer.id, action_params: [RESOURCE_ENERGY]},
+			];
+		} else if(this.room.storage && this.room.storage.store.energy >= 10000 + this.carryCapacity && !this.memory.idle) {
+			// Get energy from storage
+			task.subtask = [
+				{name: "mini_move", action: "withdraw", target_id: this.room.storage.id, action_params: [RESOURCE_ENERGY]},
 			];
 		} else if(!this.room.minerCount && (this.memory.claim || this.room.peekClaimSourceMineSpot(1, this))) {
 			//Grab a claim if don't already have one
