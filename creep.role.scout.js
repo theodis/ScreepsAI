@@ -23,20 +23,19 @@ module.exports = {
 				if(lastVisited[room] + 10000 <= time)
 					rooms.push(room);
 			rooms.push(...Object.keys(Empire.unvisited));
-
 			if(rooms.length) {
 				let min = 0;
 				let best = null;
 				rooms.forEach(room => {
 					let spawnDist = Empire.nearestSpawnDistance(room);
-					let scoutDist = Game.map.findRoute(this.room, room, {routeCallback: avoidEnemyRoomsCallback}).length;
+					let scoutPath = Game.map.findRoute(this.room, room, {routeCallback: avoidEnemyRoomsCallback});
+					let scoutDist = scoutPath.length;
 					let score = spawnDist + scoutDist;
-					if(!best || score < min) {
+					if(scoutDist && (!best || score < min)) {
 						min = score;
 						best = room;
 					}
 				});
-
 				this.assignTask({name: "mini_move", x: 25, y: 25, roomName: best, min_dist: 22 });
 			}
 		}
