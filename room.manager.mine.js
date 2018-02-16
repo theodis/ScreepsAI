@@ -47,7 +47,7 @@ Room.prototype.runMyRoom = function() {
 		if(!spawn.spawning) this.handleSpawns();
 
 		//Maybe renew nearby creep
-		if(!spawn.spawning) {
+		if(!spawn.spawning && this.workerCount > 0) {
 			let creeps = spawn.adjacentCreeps.filter(creep => creep.shouldRenew);
 			let min = 9999;
 			let max = 0;
@@ -102,7 +102,7 @@ Object.defineProperty(Room.prototype, 'maxWorkers', {
 			if(this.storage)
 				maxWorkers = Math.round(this.storage.store.energy / 50000);
 			else
-				maxWorkers = Math.max(this.sourceMineSpotCount - this.minerCount, this.minWorkers);
+				maxWorkers = Math.max(this.sourceMineSpotCount - this.minerCount, this.minWorkers, this.minerCount * 2);
 			return maxWorkers;
 		}
 		return Memoize.get("maxWorkers", maxWorkers, this, 10);
