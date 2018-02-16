@@ -8,7 +8,7 @@ module.exports = {
 	},
 	run: function(task) {
 		//Done if full
-		if(this.carry.energy === this.carryCapacity) return "done";
+		if(this.carry.energy === this.carryCapacity && this.carryCapacity) return "done";
 
 		let target = Game.getObjectById(task.target_id);
 		let result = this.harvest(target);
