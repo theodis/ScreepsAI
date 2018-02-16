@@ -11,7 +11,7 @@ Creep.role = {
 Creep.roleBaseLoadout = {
 	carry: [MOVE, CARRY],
 	cleanup: [MOVE, ATTACK],
-	miner: [MOVE, CARRY, WORK, WORK],
+	miner: [MOVE, WORK],
 	reserver: [MOVE, CLAIM],
 	scout: [TOUGH, MOVE],
 	reserveworker: [MOVE, CARRY, WORK, WORK],
@@ -24,7 +24,7 @@ for(let role in Creep.roleBaseLoadout)
 
 Creep.roleBestLoadout = {
 	carry: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE],
-	miner: [WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK,CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE],
+	miner: [WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE],
 	cleanup: [MOVE, ATTACK],
 }
 
@@ -39,7 +39,6 @@ Creep.roleLoadoutWeights = {
 	},
 	miner: {
 		move: 1,
-		carry: 1,
 		work: 2,
 	},
 	reserver: {
