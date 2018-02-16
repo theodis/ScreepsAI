@@ -17,7 +17,7 @@ module.exports = {
 			if(this.room.name != this.memory.workRoom) {
 				// Get to the right room
 				this.assignTask({name: "mini_move", x: 25, y: 25, roomName: this.memory.workRoom, min_dist: 22 });
-			} else if(droppedEnergy.length) {
+			} else if(this.carry.energy === 0 && droppedEnergy.length) {
 				let energy = getNearest(this, droppedEnergy);
 				this.assignTask({name: "mini_move", action: "pickup", target_id: energy.id});
 			} else if(this.carry.energy === 0 && bestContainer && bestContainer.store.energy > Math.min(this.carryCapacity * 2, bestContainer.storeCapacity / 2)) {
