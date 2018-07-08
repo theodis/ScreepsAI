@@ -245,12 +245,12 @@ Room.prototype.setUpBuildQueue = function() {
 	const mineSpots = this.sourceMineSpots;
 	const spawn = this.mainSpawn;
 	const sources = this.find(FIND_SOURCES);
-	const typesBuildRoadAround = [STRUCTURE_STORAGE, STRUCTURE_SPAWN, STRUCTURE_CONTAINER, STRUCTURE_TOWER, STRUCTURE_EXTENSION];
-	const typesBuildRoadToStorage = [STRUCTURE_SPAWN, STRUCTURE_CONTAINER, STRUCTURE_TOWER, STRUCTURE_CONTROLLER];
-	const typesBuildThickRoadToStorage = [STRUCTURE_CONTROLLER, STRUCTURE_CONTAINER];
+	//const typesBuildRoadAround = [STRUCTURE_STORAGE, STRUCTURE_SPAWN, STRUCTURE_CONTAINER, STRUCTURE_TOWER, STRUCTURE_EXTENSION];
+	//const typesBuildRoadToStorage = [STRUCTURE_SPAWN, STRUCTURE_CONTAINER, STRUCTURE_TOWER, STRUCTURE_CONTROLLER];
+	//const typesBuildThickRoadToStorage = [STRUCTURE_CONTROLLER, STRUCTURE_CONTAINER];
 
-	const structuresToBuildRoadAround = this.find(FIND_STRUCTURES).filter(struct => typesBuildRoadAround.indexOf(struct.structureType) !== -1);
-	const structuresToBuildRoadToStorage = this.find(FIND_STRUCTURES).filter(struct => typesBuildRoadToStorage.indexOf(struct.structureType) !== -1);
+	//const structuresToBuildRoadAround = this.find(FIND_STRUCTURES).filter(struct => typesBuildRoadAround.indexOf(struct.structureType) !== -1);
+	//const structuresToBuildRoadToStorage = this.find(FIND_STRUCTURES).filter(struct => typesBuildRoadToStorage.indexOf(struct.structureType) !== -1);
 	//Build order
 
 	//Build containers
@@ -291,6 +291,9 @@ Room.prototype.setUpBuildQueue = function() {
 		})
 	}
 
+	//Build roadmap roads
+	this.roadMapRoads().forEach(pos => this.queueConstruction(pos, STRUCTURE_ROAD));
+
 	//Build storage if high enough level
 	if(remaining[STRUCTURE_STORAGE]) this.queueConstruction(storageSpot, STRUCTURE_STORAGE);
 
@@ -314,33 +317,27 @@ Room.prototype.setUpBuildQueue = function() {
 	}
 
 	//Road from source mine spots to mine spot closest to storage
-	sources.forEach(source => {
-		let spots = mineSpots[source.id];
-		let nearestSpot = getNearest(storageSpot, spots);
-
-		spots.forEach(spot => {
-			if(spot === nearestSpot) return;
-			this.buildRoad(spot,nearestSpot);
-		})
-	});
+	//sources.forEach(source => {
+	//	let spots = mineSpots[source.id];
+	//	let nearestSpot = getNearest(storageSpot, spots);
+	//
+	//	spots.forEach(spot => {
+	//		if(spot === nearestSpot) return;
+	//		this.buildRoad(spot,nearestSpot);
+	//	})
+	//});
 
 	//Roads from storage
-	structuresToBuildRoadToStorage.forEach(struct => this.buildRoad(struct.pos, storageSpot));
+	//structuresToBuildRoadToStorage.forEach(struct => this.buildRoad(struct.pos, storageSpot));
 
 	//Roads around structure
-	structuresToBuildRoadAround.forEach(struct => this.buildRoadAround(struct.pos.x, struct.pos.y));
+	//structuresToBuildRoadAround.forEach(struct => this.buildRoadAround(struct.pos.x, struct.pos.y));
 
 	//Build roads to exits and walls when controller is level 3
 	if(this.controller.level >= 3) {
 		this.exitRoadSpots.forEach(exit => this.buildRoad(storageSpot, exit));
 		this.planWalls();
 	}
-
-	//If storage is built then queue up the thicker roads
-	/*if(this.storage) {
-		const structuresToBuildThickRoadToStorage = this.find(FIND_STRUCTURES).filter(struct => typesBuildThickRoadToStorage.indexOf(struct.structureType) !== -1);
-		structuresToBuildThickRoadToStorage.forEach(struct => this.buildRoad(struct.pos, storageSpot, 1));
-	}*/
 
 	this.memory.lastBuildQueueUpdate = Game.time;
 }

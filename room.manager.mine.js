@@ -44,6 +44,7 @@ Room.prototype.runMyRoom = function() {
 	}.bind(this);
 
 	const loop = function() {
+		this.updateRoadMap();
 		if(!spawn.spawning) this.handleSpawns();
 
 		//Maybe renew nearby creep
